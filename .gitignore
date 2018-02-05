@@ -228,7 +228,7 @@ node_modules/
 app/.git
 app/.gitignore
 
-.env*
+.env.*
 
 appcenter-post-clone.sh*
 sentry-release.properties
@@ -242,5 +242,4 @@ sentry.properties
 
 AppCenter-Config.plist
 android/app/src/main/assets/appcenter-config.json
-ios/QuidWallet/firebaseConfigs/
-	
+ios/QuidWallet/firebaseConfigs/	
