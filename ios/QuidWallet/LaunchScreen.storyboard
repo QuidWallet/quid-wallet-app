@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina5_5" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="5th-2V-3Ul"/>
+                        <viewControllerLayoutGuide type="bottom" id="hl3-R3-Fao"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="preloader.png" translatesAutoresizingMaskIntoConstraints="NO" id="jEa-HC-Wbx">
+                                <rect key="frame" x="0.0" y="0.0" width="415" height="736"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="jEa-HC-Wbx" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="5WZ-aI-Mxw"/>
+                            <constraint firstAttribute="bottom" secondItem="jEa-HC-Wbx" secondAttribute="bottom" id="8pn-cP-4U6"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="jEa-HC-Wbx" secondAttribute="trailing" constant="-21" id="Zy6-Vy-PhY"/>
+                            <constraint firstAttribute="trailing" secondItem="jEa-HC-Wbx" secondAttribute="trailing" id="jEw-nk-owI"/>
+                            <constraint firstItem="jEa-HC-Wbx" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="oIn-NQ-fu8"/>
+                        </constraints>
+                    </view>
+                    <extendedEdge key="edgesForExtendedLayout"/>
+                    <nil key="simulatedTopBarMetrics"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="52" y="374.6305418719212"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="preloader.png" width="375" height="667"/>
+    </resources>
+</document>
