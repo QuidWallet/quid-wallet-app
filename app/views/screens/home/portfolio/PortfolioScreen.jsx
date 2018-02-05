@@ -2,10 +2,10 @@ import React from 'react';
 import { View, AppState } from 'react-native';
 import PortfolioHeader from 'quid-wallet/app/views/screens/home/portfolio/components/portfolioHeader';
 import wrapWithCurrencySwitcher from 'quid-wallet/app/views/components/currency-switcher';
-import PositionsContainer from './PositionsContainer';
+import PositionsContainer from './components/PositionsContainer';
 
 
-class PositionsScreen extends React.Component {
+class PortfolioScreen extends React.Component {
     static navigatorStyle = {
 	// (ios only) for transparent navbar
 	statusBarTextColorSchemeSingleScreen: 'light',
@@ -44,4 +44,4 @@ class PositionsScreen extends React.Component {
 }
 
 
-export default wrapWithCurrencySwitcher(PositionsScreen, true, 'PortfolioScreen', false);
+export default wrapWithCurrencySwitcher(PortfolioScreen, true, 'PortfolioScreen', false);

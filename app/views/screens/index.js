@@ -4,7 +4,7 @@ import WalletScreen from './home/wallet/WalletScreen';
 import WalletScreenDrawer from './home/wallet/components/WalletDrawer';
 import UnlinkWalletScreen from './home/wallet/settings/unlink/UnlinkWalletScreen';
 import CurrenciesSettingsScreen from './home/wallet/settings/currencies/CurrenciesSettingsScreen';
-import PortfolioScreen from './home/portfolio/positions/PositionsScreen';
+import PortfolioScreen from './home/portfolio/PortfolioScreen';
 import TransactionRecordScreen from './home/wallet/history/transactionRecord/TransactionRecordScreen.jsx';
 import MarketScreen from './home/exchange/all/AllTokensMarketScreen';
 import WalletHistoryScreen from './home/wallet/history/HistoryScreen';
