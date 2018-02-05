@@ -1,7 +1,6 @@
 import { getActiveDisplayCurrencies } from 'quid-wallet/app/data/selectors';
 import { fetchMarketData } from './market';
-var Fabric = require('react-native-fabric');
-var { Answers } = Fabric;
+import FabricService from 'quid-wallet/app/services/FabricService';
 
 
 export const actions = {
@@ -15,9 +14,9 @@ export const toggleCurrency = (payload) => {
 	const state = getState();
 	const currency = payload;	
 	const activeCurrencies = getActiveDisplayCurrencies(state);
-	const addingCurrency = !activeCurrencies.includes(currency) ;
+	const addingCurrency = !activeCurrencies.includes(currency);
 	
-	// FABRIC ANALYTICS
+	// #fabric-analytics
 	let toggleAction, updateCountNumber;
 	if (addingCurrency) {
 	    toggleAction = 'ADD';
@@ -26,14 +25,8 @@ export const toggleCurrency = (payload) => {
 	    toggleAction = 'REMOVE';
 	    updateCountNumber = -1;	    
 	}
-	
-	const logDetails  = {
-	    ACTION_TYPE: 'TOGGLE_CURRENCY',
-	    currency: currency,
-	    currenciesCount: (activeCurrencies.length + updateCountNumber),
-	    toggleAction
-	};
-	Answers.logCustom('ACTION', logDetails);	
+	const currenciesCount = activeCurrencies.length + updateCountNumber;
+	FabricService.logCurrencyToggled(currency, currenciesCount, toggleAction);
 	
 	dispatch({
 	    type: actions.TOGGLE_CURRENCY,
@@ -52,17 +45,13 @@ export const toggleCurrency = (payload) => {
 
 export const changeCurrency = () => {
     return (dispatch, getState) => {
-	// FABRIC ANALYTICS
 	const state = getState();
+	
+	// #fabric-analytics
 	const activeCurrencies = getActiveDisplayCurrencies(state);
 	const [nextCurrency] = activeCurrencies.slice(-1);
 	const screen = state.activeScreenId;
-	const logDetails  = {
-	    ACTION_TYPE: 'CURRENCY_CHANGE',
-	    currency: nextCurrency,
-	    screen
-	};	
-	Answers.logCustom('ACTION', logDetails);
+	FabricService.logCurrencyChanged(nextCurrency, screen);
 	
 	dispatch({type: actions.CHANGE_CURRENCY});
     };

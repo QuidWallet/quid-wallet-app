@@ -5,8 +5,7 @@ import store from './data/store';
 import registerScreens from './views/screens';
 import ScreenVisibilityListener from './views/screens/ScreenVisibilityListener';
 import { selectScreen } from './actions/app';
-var Fabric = require('react-native-fabric');
-var { Answers } = Fabric;
+import FabricService from 'quid-wallet/app/services/FabricService';
 
 registerScreens(store, Provider);
 
@@ -31,12 +30,9 @@ export default class App extends React.Component {
 
     registerScreenListener() {
     	const screenDidAppearCallback = ({screen, commandType}) => {
-	    const contentName = 'Screen visible';
-	    const contentType = 'SCREEN';
-	    const contentId = screen; 
-
-	    // #analytics  
-	    Answers.logContentView(contentName, contentType, contentId, {commandType, screen });
+	    // #fabric-analytics  
+	    FabricService.logScreenView(screen, commandType);
+	    
     	    store.dispatch(selectScreen(screen));
     	};
     	const screenVisibilityListener = new ScreenVisibilityListener(screenDidAppearCallback);

@@ -5,8 +5,7 @@ import TokenTransactions from './tokenTransactions';
 import { AssetRow } from 'quid-wallet/app/views/components/wallet/assetRow';
 import { getAsset, getSelectedCurrency } from 'quid-wallet/app/data/selectors';
 import wrapWithCurrencySwitcher from 'quid-wallet/app/views/components/currency-switcher';
-var Fabric = require('react-native-fabric');
-var { Answers } = Fabric;
+import FabricService from 'quid-wallet/app/services/FabricService';
 
 
 const styles = StyleSheet.create({
@@ -35,8 +34,10 @@ class HistoryScreen extends React.Component {
 
 class TranasactionHistoryContainer extends React.Component {
     constructor(props) {
-	super(props);	
-	Answers.logContentView(`${props.asset.symbol} Transactions`, 'Transaction History', `transaction-history-${props.asset.symbol}`, { asset: props.asset.symbol });	
+	super(props);
+
+	// #fabric-analytics
+	FabricService.logTransactionHistoryViewed(props.asset.symbol)
     }
         
     render() {

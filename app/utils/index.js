@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js';
 import currencyFormatter from 'currency-formatter';
 
+
 export const stringifyBalance3 = (balance, decimals) => {
     var leftValue, rightValue;
     balance = balance.toString();

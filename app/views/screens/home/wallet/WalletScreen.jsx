@@ -9,8 +9,7 @@ import { fetchMarketData } from 'quid-wallet/app/actions/market';
 import wrapWithCurrencySwitcher from 'quid-wallet/app/views/components/currency-switcher';
 import CollapsibleToolbar from 'quid-wallet/app/views/components/CollapsibleToolbar';
 import TransparentNavBar from 'quid-wallet/app/views/components/TransparentNavBar';
-var Fabric = require('react-native-fabric');
-var { Answers } = Fabric;
+import FabricService from 'quid-wallet/app/services/FabricService';
 
 
 class WalletScreen extends React.PureComponent {    
@@ -58,8 +57,8 @@ class WalletScreen extends React.PureComponent {
     }
 
     _pullRefresh() {
-	// firebase analytics 
-	Answers.logCustom("REFRESH", {screen: 'quidwallet.home.wallet.WalletScreen'});
+	// #fabric-analytics
+	FabricService.logScreenPullRefreshed('quidwallet.home.wallet.WalletScreen');
 	
 	this._fetchData();
     }

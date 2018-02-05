@@ -10,8 +10,7 @@ import {
 import { fetchAddressAssets } from 'quid-wallet/app/actions/wallet';
 import { fetchMarketData } from 'quid-wallet/app/actions/market';
 import AssetPriceRow from './assetRow';
-var Fabric = require('react-native-fabric');
-var { Answers } = Fabric;
+import FabricService from 'quid-wallet/app/services/FabricService';
 
 
 class PositionsContainer extends React.PureComponent {
@@ -30,8 +29,8 @@ class PositionsContainer extends React.PureComponent {
 	    });		
 	});
 
-	// ANAL|YTYCS
-	Answers.logCustom("REFRESH", { screen: 'quidwallet.home.portfolio.PortfolioScreen' });
+	// #fabric-analytics
+	FabricService.logScreenPullRefreshed('quidwallet.home.portfolio.PortfolioScreen');
     }
     
     _renderAssetRow({ item }) {

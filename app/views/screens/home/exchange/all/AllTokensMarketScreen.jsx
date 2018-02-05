@@ -8,8 +8,7 @@ import wrapWithCurrencySwitcher from 'quid-wallet/app/views/components/currency-
 import { SearchBar } from 'react-native-elements';
 import escapeRegExp from 'escape-string-regexp';
 import TransparentNavBar from 'quid-wallet/app/views/components/TransparentNavBar';
-var Fabric = require('react-native-fabric');
-var { Answers } = Fabric;
+import FabricService from 'quid-wallet/app/services/FabricService';
 
 
 const styles = StyleSheet.create({
@@ -46,13 +45,11 @@ class TokenListContainer extends React.Component {
 		    marginTop: 0
 	       }}
 	       onChangeText={(input) => {
-		   this.setState({ searchString: input });
+		       this.setState({ searchString: input });
 
-		   Answers.logSearch(input, {
-		       screen: 'quidwallet.home.exchange.MarketScreen',
-		       searchType: "TOKEN"
-		   });
-	      }}
+		       // #fabric-analytics
+		       FabricService.logTokenSearchOnMarketScreen(input);
+	       }}
 	      placeholder='Search token...' />
 	      <ConnectedTokenListComponent navigator={this.props.navigator} searchString={this.state.searchString}/>
 	    </View>
@@ -73,7 +70,8 @@ class TokenListComponent extends React.PureComponent {
 	    });		
 	});
 
-	Answers.logCustom("REFRESH", {screen: 'quidwallet.home.exchange.MarketScreen'});
+	// #fabric-analytics
+	FabricService.logScreenPullRefreshed('quidwallet.home.exchange.MarketScreen');
     }
 
     isScreenActive(props) {

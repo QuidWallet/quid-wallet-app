@@ -8,8 +8,7 @@ import { getActiveWallet, getWallets } from 'quid-wallet/app/data/selectors';
 import { shortAddress } from 'quid-wallet/app/utils';
 import { getWalletIcon } from 'quid-wallet/app/utils/getWalletIcon';
 import { Navigation } from 'react-native-navigation';
-const Fabric = require('react-native-fabric');
-const { Answers } = Fabric;
+import FabricService from 'quid-wallet/app/services/FabricService';
 
 
 const styles = StyleSheet.create({
@@ -129,10 +128,8 @@ class WalletDrawerScreen extends React.Component {
 
 
 	if (this.props.address !== address) {
-	    // ANALYTYCS
-	    Answers.logCustom("ACTION", {
-		ACTION_TYPE: 'CHANGE_WALLET'
-	    });	    
+	    // #fabric-analytics
+	    FabricService.logWalletChanged();
 	    
 	    this.props.selectWallet(address);
 	}

@@ -5,9 +5,7 @@ import web3Service from 'quid-wallet/app/services/web3Service';
 import { linkWatchWallet } from 'quid-wallet/app/actions/wallet';
 import styles from './styles';
 import { Navigation } from 'react-native-navigation';
-
-const Fabric = require('react-native-fabric');
-const { Answers } = Fabric;
+import FabricService from 'quid-wallet/app/services/FabricService';
 
 
 class AddWalletScreen extends React.Component {
@@ -42,6 +40,7 @@ class AddWalletScreen extends React.Component {
     	this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
     }
 
+    
     submit() {
 	// strip spaces from input string
 	const address = this.state.address.replace(/\s/g, '');
@@ -49,9 +48,7 @@ class AddWalletScreen extends React.Component {
 	const isAddress = this.web3.isAddress(address);
 	this.setState({addressIsValid: isAddress});
 	if (!isAddress){
-	    Answers.logLogin("WATCH_WALLET", false, {
-		inputLength: address.length
-	    });
+	    FabricService.logAddWalletFailed(address.length);
 	    this.setState({warning: true});	    
 	} else{
 	    this.setState({inputTheme: "bordered", warning: false});
@@ -59,9 +56,11 @@ class AddWalletScreen extends React.Component {
 	}		
     }
 
+    
     _onAddressChange(address) {
 	this.setState({address, inputTheme: "bordered", warning: false});
     }
+
     
     render() {	
 	return (

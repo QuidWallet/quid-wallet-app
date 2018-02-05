@@ -6,8 +6,7 @@ import { SearchBar } from 'react-native-elements';
 import escapeRegExp from 'escape-string-regexp';
 import { toggleCurrency } from 'quid-wallet/app/actions/currency';
 import CurrencySwitcher from 'quid-wallet/app/views/components/switch/CurrencySwitcher';
-var Fabric = require('react-native-fabric');
-var { Answers } = Fabric;
+import FabricService from 'quid-wallet/app/services/FabricService';
 
 
 const styles = StyleSheet.create({
@@ -80,11 +79,9 @@ class CurrenciesSettingsScreen extends React.Component {
 		  }}		     
 		 onChangeText={(input) => {
 			 this.setState({ search: input });
-			 // analytics
-			 Answers.logSearch(input, {
-			     screen: 'quidwallet.home.wallet.settings.CurrenciesSettingsScreen',
-			     searchType: "CURRENCY"
-			 });		     
+
+			 // #fabric-analytics
+			 FabricService.logTokenSearchOnDisplayCurrencyScreen(input);
 		 }}			
 		  placeholder='Search currency...' />
 	      <FlatList

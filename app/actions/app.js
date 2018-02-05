@@ -1,6 +1,5 @@
 import { getTokenWithMarketInfo } from 'quid-wallet/app/data/selectors';
-var Fabric = require('react-native-fabric');
-var { Answers } = Fabric;
+import FabricService from 'quid-wallet/app/services/FabricService';
 
 
 export const actions = {
@@ -23,6 +22,8 @@ export function changeAppRoot(root) {
 
 export function toggleFavoriteToken(tokenAddress) {
     return (dispatch, getState) => {
+	const state = getState();
+
 	dispatch({
 	    type: actions.TOGGLE_FAVORITE_TOKEN,
 	    payload: {
@@ -30,39 +31,27 @@ export function toggleFavoriteToken(tokenAddress) {
 	    }
 	});
 
-	// ANALYTICS
-	const state = getState();
+	// #fabric-analytics
 	const token = getTokenWithMarketInfo(state, {asset: {contractAddress: tokenAddress}});
-	const favoriteTokens = state.data.favoriteTokens;
-	
-	const logDetails  = {
-	    ACTION_TYPE: 'TOGGLE_FAVORITE_TOKEN',
-	    symbol: token.symbol,
-	    favoriteTokensCount: favoriteTokens.length,
-	    toggleAction: (token.isFavorite ? 'ADD' : 'REMOVE')
-	};
-	Answers.logCustom('ACTION', logDetails);
+	const favoriteTokensCount = state.data.favoriteTokens.length;
+	const toggleAction = (token.isFavorite ? 'ADD' : 'REMOVE')	
+	FabricService.logFavoriteTokenToggled(token.symbol, favoriteTokensCount, toggleAction);
     };
 }
 
 
 export function toggleHiddenBalance() {
     return (dispatch, getState) => {
+	const state = getState();
+
 	dispatch({
 	    type: actions.TOGGLE_HIDDEN_BALANCE
 	});
 
-	// ANALYTICS
-	const state = getState();
+	// #fabric-analytics
 	const hidden = state.data.balanceHidden;
-	const screen = state.activeScreenId;
-	
-	const logDetails  = {
-	    ACTION_TYPE: 'TOGGLE_HIDDEN_BALANCE',
-	    hidden,
-	    screen
-	};
-	Answers.logCustom('ACTION', logDetails);	
+	const screen = state.activeScreenId;	
+	FabricService.logHiddenBalanceToggled(hidden, screen);
     };
 }
 

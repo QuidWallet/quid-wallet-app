@@ -1,9 +1,8 @@
-const Fabric = require('react-native-fabric');
-const { Answers } = Fabric;
 import { Navigation } from 'react-native-navigation';
 import ethplorerService from 'quid-wallet/app/services/ethplorerApiService';
 import { changeAppRoot } from 'quid-wallet/app/actions/app';
 import { getWallets } from 'quid-wallet/app/data/selectors';
+import FabricService from 'quid-wallet/app/services/FabricService';
 
 
 export const actions = {
@@ -69,10 +68,10 @@ export const linkWatchWallet  = (address) => {
 	    return chooseSet[Math.floor(Math.random() * chooseSet.length)];	    
 	}
 
-	// ANALYTICS
-	Answers.logLogin('WATCH_WALLET', true, {
-	    walletCount: (wallets.length + 1)
-	});
+	// #fabric-analytics
+	const walletCount = wallets.length + 1;
+	FabricService.logAddressAdded(walletCount);
+	
 	
 	const icon = chooseIcon(); 
 	
@@ -101,13 +100,9 @@ export const unlinkWallet = (address) => {
     return ((dispatch, getState) => {
 	const wallets = getWallets(getState());
 	const otherWallets = wallets.filter(wallet => wallet.address !== address);
-
-	// ANALYTICS
-	Answers.logCustom('ACTION', {
-	    ACTION_TYPE: 'UNLINK_WALLET',
-	    walletsLeftCount: otherWallets.length 
-	});
 	
+	// #fabric-analytics
+	FabricService.logAddressUnlinked(otherWallets.count);	
 	
 	// 1. select other wallet
 	let newActiveWallet = null;
