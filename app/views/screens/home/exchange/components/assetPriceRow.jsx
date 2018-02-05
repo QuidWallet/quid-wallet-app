@@ -98,23 +98,4 @@ export class AssetPriceRow extends React.PureComponent {
 }
 
 
-export class TokenPriceRowForDetailsScreen extends React.PureComponent {
-    render() {
-	const { asset } = this.props;	
-	const { renderRowCache } = asset;
-	return (
-	    <View style={styles.assetRow}>
-              <View style={{flex: 2, flexDirection: 'row', marginLeft: -25}}>
-		<TokenAvatar symbol={asset.name} contractAddress={asset.contractAddress} darkTheme={false} />
-              </View>            
-	      <View style={styles.centeredFlexEnd}>
-		<Text style={[cachedStyles.priceValueDetailsScreen, ] }>{renderRowCache.price}</Text>
-		<Text style={[...cachedStyles.priceChange ,{ color: renderRowCache.color }]}>{renderRowCache.change}</Text>
-	      </View>
-	    </View>
-	);
-    }
-}
-
-
 export default AssetPriceRow;

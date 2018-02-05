@@ -10,8 +10,7 @@ import CurrencySwitcher from 'quid-wallet/app/views/components/currency-switcher
 import PortfolioQuantityFormatted from 'quid-wallet/app/views/screens/home/portfolio/components/PortfolioQuantityFormatted';
 import { toggleFavoriteToken } from 'quid-wallet/app/actions/app';
 import { formatToCurrency, toFixed } from 'quid-wallet/app/utils';
-const starIconAddress = require('quid-wallet/app/views/assets/icons/icon_favorite.png');
-import { TokenPriceRowForDetailsScreen } from './assetPriceRow';
+import { AssetRow } from 'quid-wallet/app/views/screens/home/exchange/AssetDetailsScreen/components/AssetRow';
 
 
 const MarketDetailsHeader = (props) => {
@@ -19,7 +18,7 @@ const MarketDetailsHeader = (props) => {
         <View>
             <View style={{ flex: 5 }}>
 		<View style={{ flex: 2, alignItems: 'flex-start', paddingTop: 20, marginBottom: 20 }}>
-		    <TokenPriceRowForDetailsScreen asset={props.token} currency={props.currency}/>
+		    <AssetRow asset={props.token} currency={props.currency}/>
 		</View>
 		
 		<View style={{ flex: 1, marginLeft: 10 }}>
@@ -27,7 +26,7 @@ const MarketDetailsHeader = (props) => {
 			<View style={{ flexDirection: 'row', marginBottom: 20 }}>
 			    <Image
 				style={{ marginRight: 10 }}
-				source={starIconAddress} />
+				source={require('quid-wallet/app/views/assets/icons/icon_favorite.png')} />
 			    <Text style={{ fontWeight: 'bold', color: "#FECB2E" }}>{props.token.isFavorite ? "Remove from favorites" : "Add to favorites"}</Text>
 			</View>
 		    </TouchableOpacity>

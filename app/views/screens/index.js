@@ -5,14 +5,14 @@ import WalletScreenDrawer from './home/wallet/components/WalletDrawer';
 import UnlinkWalletScreen from './home/wallet/settings/unlink/UnlinkWalletScreen';
 import CurrenciesSettingsScreen from './home/wallet/settings/currencies/CurrenciesSettingsScreen';
 import PortfolioScreen from './home/portfolio/PortfolioScreen';
-import TransactionRecordScreen from './home/wallet/history/transactionRecord/TransactionRecordScreen.jsx';
-import MarketScreen from './home/exchange/all/AllTokensMarketScreen';
+import TransactionRecordScreen from './home/wallet/history/transactionRecord/TransactionRecordScreen';
+import MarketScreen from './home/exchange/MarketScreen';
 import WalletHistoryScreen from './home/wallet/history/HistoryScreen';
 import WalletSettingsScreen from './home/wallet/settings/SettingsScreen';
 import AboutScreen from './home/wallet/settings/about';
 import WebviewScreen from './home/wallet/settings/WebviewScreen';
 import NotificationComponent from 'quid-wallet/app/views/components/Notification';
-import AssetDetailsScreen from './home/exchange/AssetDetailsScreen.jsx';
+import AssetDetailsScreen from './home/exchange/AssetDetailsScreen/AssetDetailsScreen';
 import CurrencySwitcherIcon from 'quid-wallet/app/views/components/currency-switcher/CurrencySwitcherIcon';
 
 

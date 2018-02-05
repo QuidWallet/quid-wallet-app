@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { fetchMarketData } from 'quid-wallet/app/actions/market';
 import { StyleSheet, View, VirtualizedList} from 'react-native';
-import { AssetPriceRow, AssetPriceHeaderRow } from 'quid-wallet/app/views/screens/home/exchange/assetPriceRow';
+import { AssetPriceRow, AssetPriceHeaderRow } from 'quid-wallet/app/views/screens/home/exchange/components/assetPriceRow';
 import { getSelectedCurrency, getTokensSortedByMarketCap } from 'quid-wallet/app/data/selectors';
 import wrapWithCurrencySwitcher from 'quid-wallet/app/views/components/currency-switcher';
 import { SearchBar } from 'react-native-elements';
