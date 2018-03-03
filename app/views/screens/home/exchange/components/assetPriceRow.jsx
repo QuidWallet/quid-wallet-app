@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import TokenAvatar from 'quid-wallet/app/views/components/TokenAvatar';
 import { systemWeights, human } from 'react-native-typography';
+import { TimeAgoWithIcon } from 'quid-wallet/app/views/components/TimeAgo';
 
 
 const styles = StyleSheet.create({
@@ -36,6 +37,15 @@ const styles = StyleSheet.create({
 	paddingBottom: 18,
 	textAlign: 'right'
     },
+    updated: {
+	textAlign: 'right',
+	fontSize: 9,
+	color: '#7C7E86',
+	lineHeight: 10,
+	...systemWeights.light,
+	paddingRight: 14
+    },
+    
 });
 
 const cachedStyles = {
@@ -49,16 +59,24 @@ const cachedStyles = {
 }
 
 
-export const AssetPriceHeaderRow = () => {
+export const AssetPriceHeaderRow = (timestampUpdated) => {
     return (
-        <View style={styles.assetHeaderRow}>
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.tableTitle, {marginRight: 20}]}> Token </Text>
-          </View>
-          <View style={{ flex: 2 }}>
+	    <View>
+	    <TimeAgoWithIcon timestamp={timestampUpdated} style={
+		[...human.caption2,
+		 styles.updated
+		]
+	    } />
+	    
+            <View style={styles.assetHeaderRow}>
+            <View style={{ flex: 1 }}>
+            <Text style={[styles.tableTitle, {textAlign: 'left', marginLeft: 58, minWidth: 100}]}> Token </Text>
+            </View>
+            <View style={{ flex: 2 }}>
             <Text style={styles.tableTitle}> Current Price</Text>
-          </View>
-        </View>
+            </View>
+            </View>
+	    </View>
     );
 }
 

@@ -69,6 +69,7 @@ export const convertDate = (timestamp) => {
   
 
 export const displayBigNumber = (val, decimals) => {
+    if (decimals === 0) { return val; }
     decimals = decimals || 18;
     let value;
     if (val.toString().includes('e')) { // e.g. 5.625e+23	
@@ -132,3 +133,8 @@ export const formatToCurrency = (value, currency) => {
 	format: '%s%v',
     });
 };
+
+
+export const paginateArray = (arr, page, pageSize) => {
+    return arr.filter((item, index) => (index >= page*pageSize && index < (page + 1) * pageSize));  
+}

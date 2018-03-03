@@ -82,7 +82,9 @@ class CurrenciesSettingsScreen extends React.Component {
 
 			 // #fabric-analytics
 			 FabricService.logTokenSearchOnDisplayCurrencyScreen(input);
-		 }}			
+		 }}
+	         defaultValue={this.state.search}
+		 clearIcon={this.state.search ? true : false}			
 		  placeholder='Search currency...' />
 	      <FlatList
 		  style={styles.container}

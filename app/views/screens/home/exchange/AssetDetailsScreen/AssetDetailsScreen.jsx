@@ -1,12 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Text, View,
-	 TouchableOpacity, Image, FlatList } from 'react-native';
+	 TouchableOpacity, Image, FlatList, Platform } from 'react-native';
 import NumberFormat from 'react-number-format';
 import cryptocompareApiService from 'quid-wallet/app/services/cryptocompareApiService';
 import wrapWithCurrencySwitcher from 'quid-wallet/app/views/components/currency-switcher';
 import { getSelectedCurrency, getTokenWithMarketInfo } from 'quid-wallet/app/data/selectors';
-import CurrencySwitcher from 'quid-wallet/app/views/components/currency-switcher';
 import PortfolioQuantityFormatted from 'quid-wallet/app/views/screens/home/portfolio/components/PortfolioQuantityFormatted';
 import { toggleFavoriteToken } from 'quid-wallet/app/actions/app';
 import { formatToCurrency, toFixed } from 'quid-wallet/app/utils';
@@ -86,10 +85,14 @@ const MarketDetailsHeader = (props) => {
 
 
 class AssetDetailsScreen extends React.Component {
-    static navigationOptions = () => ({
-        headerRight: <CurrencySwitcher />
-    })
-
+    static navigatorStyle = {
+	...Platform.select({
+	    ios: {
+		screenBackgroundColor: 'white'
+	    }
+	})
+    }
+    
     constructor(props) {
         super(props);
         this.state = {
@@ -138,7 +141,7 @@ class AssetDetailsScreen extends React.Component {
         return dd + '.' + mm + '.' + yyyy;
     }
 
-    _keyExtractor = (item) => item.time;
+    _keyExtractor = (item) => item.time.toString();
     
 
     render() {

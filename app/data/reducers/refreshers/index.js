@@ -1,6 +1,7 @@
 import { actions as walletActions } from 'quid-wallet/app/actions/wallet';
 import { actions as marketActions } from 'quid-wallet/app/actions/market';
 import { actions as txActions } from 'quid-wallet/app/actions/transactions';
+import { actions as appActions } from 'quid-wallet/app/actions/app';
 import { combineReducers } from 'redux';
 
 
@@ -13,10 +14,10 @@ function fetchingTransactions(state = false, action) {
 	break;
     case txActions.GOT_ETHER_TRANSACTIONS:
     case txActions.GOT_TOKEN_TRANSACTIONS:
-    case txActions.STOP_SPINNER:	
+    case txActions.STOP_SPINNER:
+    case appActions.STOP_ALL_REFRESHERS:		
     case walletActions.UNLINK_WALLET:	
-	nextState = false;
-	
+	nextState = false;	
 	break;	
     default:
 	nextState = state;
@@ -34,8 +35,9 @@ function fetchingAddressAssets(state = false, action) {
 	nextState = true;
 	break;
     case walletActions.GOT_ADDRESS_ASSETS:
-    case walletActions.STOP_REFRESHER:	
+    case walletActions.STOP_REFRESHER:
     case walletActions.UNLINK_WALLET:
+    case appActions.STOP_ALL_REFRESHERS:
 	nextState = false;
 	break;	
     default:
@@ -54,6 +56,7 @@ function fetchingMarketData(state = false, action) {
 	nextState = true;
 	break;
     case marketActions.GOT_MARKET_DATA:
+    case appActions.STOP_ALL_REFRESHERS:	
     case marketActions.STOP_REFRESHER:	
 	nextState = false;
 	break;	

@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { StyleSheet, View } from 'react-native';
 import TokenTransactions from './tokenTransactions';
+import EtherTransactions from './etherTransactions';
 import { AssetRow } from 'quid-wallet/app/views/components/wallet/assetRow';
 import { getAsset, getSelectedCurrency } from 'quid-wallet/app/data/selectors';
 import wrapWithCurrencySwitcher from 'quid-wallet/app/views/components/currency-switcher';
@@ -24,15 +25,6 @@ const styles = StyleSheet.create({
 
 
 class HistoryScreen extends React.Component {
-    render() {
-	return (
-	    <TranasactionHistoryContainerConnected symbol={this.props.tokenSymbol} navigator={this.props.navigator}/>
-	);
-    }
-}
-
-
-class TranasactionHistoryContainer extends React.Component {
     constructor(props) {
 	super(props);
 
@@ -48,7 +40,10 @@ class TranasactionHistoryContainer extends React.Component {
 		    <AssetRow asset={asset} currency={currency} isBalanceHidden={isBalanceHidden}/>
 		</View>
 		<View style={styles.transactionsContainer}>
-		    <TokenTransactions asset={asset} navigator={this.props.navigator} />
+		    { (asset.contractAddress === "0x000_ether") ?
+		      <EtherTransactions asset={asset} navigator={this.props.navigator} /> :
+		      <TokenTransactions asset={asset} navigator={this.props.navigator} />
+		    }
 		</View>
             </View>
 	);
@@ -58,10 +53,9 @@ class TranasactionHistoryContainer extends React.Component {
 
 const mapStateToProps = (state, props) => ({
     currency: getSelectedCurrency(state),
-    asset: getAsset(state, props),
+    asset: getAsset(state, {symbol: props.tokenSymbol} ),
     isBalanceHidden: state.data.balanceHidden
 });
 
 
-const TranasactionHistoryContainerConnected = connect(mapStateToProps)(TranasactionHistoryContainer);
-export default wrapWithCurrencySwitcher(HistoryScreen);
+export default connect(mapStateToProps)(wrapWithCurrencySwitcher(HistoryScreen));

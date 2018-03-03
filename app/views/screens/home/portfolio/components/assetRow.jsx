@@ -55,7 +55,6 @@ const AssetPriceChange = ({ currency, price, priceChange }) => {
     } else {
 	color = "#24283666"; // gray
 	priceChangeAbs = "-";
-        priceString = "-";
     }
     
     return (
@@ -84,7 +83,7 @@ const HoldingsChange = ({ currency, balanceChangeAbs, balanceChangePerc, balance
 
     // if balance is hidden show only perc change
     if (isBalanceHidden) {
-	sign = (balanceChangeAbs < 0) ? "" : "+";
+	sign = (balanceChangeAbs > 0) ? "+" : "";
 	return (
             <View style={styles.centerVertically}>
 	      <Text style={[human.caption1, styles.changeValue, {color}]}>
@@ -99,7 +98,7 @@ const HoldingsChange = ({ currency, balanceChangeAbs, balanceChangePerc, balance
 	  <Text style={ [human.caption1, styles.qntyValue]}>{toFixed(qnty, 2)}</Text>
           <PortfolioQuantityFormatted style={[ human.callout, styles.absoluteValue]} value={balance} currency={currency} precision={2}/>
 	  <Text style={[human.caption1, styles.changeValue, {color}]}>
-	    {sign}<PortfolioQuantityFormatted value={Math.abs(balanceChangeAbs)} precision={0}/>({balanceChangePercStr})
+	    {sign}<PortfolioQuantityFormatted value={Math.abs(balanceChangeAbs)} precision={2}/> ({balanceChangePercStr})
 	  </Text>
         </View>
     );

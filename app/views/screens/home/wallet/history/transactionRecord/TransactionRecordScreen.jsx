@@ -113,7 +113,7 @@ class TransactionRecord extends React.Component {
 		    <DateFormatted style={styles.text} timestamp={tx.timestamp * 1000} />
 
 		    <Text style={styles.text}>{tx.blockNumber}</Text>
-		    <Text style={styles.link} onPress={() => Linking.openURL(hashLink)} >{shortAddress(tx.txHash, 10)}</Text>
+		<Text style={styles.link} onPress={() => Linking.openURL(hashLink).catch(() => null)} >{shortAddress(tx.txHash, 10)}</Text>
 		  </View>
 		</View>
 	      </View>

@@ -1,14 +1,24 @@
 import React from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 import moment from 'moment';
 
 
-const TimeAgo = (props) => {
-    const timeAgo = moment(new Date(props.timestamp)).fromNow();
-    return (
-        <Text style={props.style}>{timeAgo}</Text>
-    );
+export const TimeAgoText = ({timestamp}) => {
+    const timeAgo = moment(new Date(timestamp)).fromNow();
+    return timeAgo;
 }
 
 
-export default TimeAgo
+export const TimeAgoWithIcon = ({style, timestamp}) => {
+    // show warning icon if more than 15 minutes passed
+    const showIcon = moment().diff(timestamp, 'minutes') > 15;
+    return (
+	    <View>
+	    <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+	    { showIcon ? <Icon name='error' color='#E33E59' size={10} iconStyle={{paddingRight: 5}}/> : null }
+	    <Text style={style}>Updated {TimeAgoText({timestamp})}</Text>
+	    </View>
+	    </View>
+    );
+}

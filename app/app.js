@@ -1,10 +1,11 @@
 import React from 'react';
+import { Platform } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 import { Provider } from 'react-redux';
 import store from './data/store';
 import registerScreens from './views/screens';
 import ScreenVisibilityListener from './views/screens/ScreenVisibilityListener';
-import { selectScreen } from './actions/app';
+import { selectScreen, stopAllRefreshers } from './actions/app';
 import FabricService from 'quid-wallet/app/services/FabricService';
 
 registerScreens(store, Provider);
@@ -13,10 +14,11 @@ registerScreens(store, Provider);
 export default class App extends React.Component {
     constructor(props) {
 	super(props);
-	store.subscribe(this.onStoreUpdate.bind(this));
-	this.registerScreenListener();
+	store.subscribe(this.onStoreUpdate.bind(this));	
+	this.registerScreenListener();	
     }
 
+    
     onStoreUpdate() {
 	const state = store.getState();
     	const root = state.appRoot;
@@ -32,6 +34,15 @@ export default class App extends React.Component {
     	const screenDidAppearCallback = ({screen, commandType}) => {
 	    // #fabric-analytics  
 	    FabricService.logScreenView(screen, commandType);
+
+	    // refresher freeze iOS bug work-around
+	    // refresher freezes after resuming screen from background
+	    // to fix we dispatch action to stop refresher on screen change
+	    if (Platform.OS === "ios"
+		&& commandType === "BottomTabSelected"
+	       ) {
+    		store.dispatch(stopAllRefreshers());
+	    }
 	    
     	    store.dispatch(selectScreen(screen));
     	};

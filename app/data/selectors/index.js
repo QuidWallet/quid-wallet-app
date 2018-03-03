@@ -3,13 +3,13 @@ import { formatUSDate, toFixed, formatToCurrency } from 'quid-wallet/app/utils';
 import { createSelector as createOrmSelector } from 'redux-orm';
 import { schema } from 'quid-wallet/app/data/reducers/models';
 import { DISPLAY_CURRENCIES } from 'quid-wallet/app/data/config/displayCurrencies';
-import { tokens as TOKENS_DCT } from 'quid-wallet/app/data/config/tokens';
 
 const ormSelector = state => state.orm;
 export const getActiveWalletAddress = state => state.data.activeAddress;
 export const getDisplayCurrencies = () => DISPLAY_CURRENCIES;
 export const getActiveDisplayCurrencies = state => state.data.activeCurrencies;
 export const getSelectedCurrency = state => state.data.activeCurrencies[0];
+export const getTokensDct = state => state.config.tokens.tokens;
 
 
 export const getWallets = createSelector(
@@ -40,10 +40,11 @@ const _getMarketDataForAsset = (symbol, marketData, currency) => {
 
 
 const getTokensWithMarketData = createSelector(
-    () => {
+    [getTokensDct], 
+    (tokensDct) => {
 	const ticker2TokenDct = {};
-	Object.keys(TOKENS_DCT).map(tokenAddr => {
-	    const token = TOKENS_DCT[tokenAddr];
+	Object.keys(tokensDct).map(tokenAddr => {
+	    const token = tokensDct[tokenAddr];
 	    if (token.has_cc_ticker && token.cmc_rank) {
 		token.contractAddress = tokenAddr;
 		ticker2TokenDct[token.cc_ticker] = token;
@@ -74,8 +75,8 @@ const _prepareTokenObject = (token, marketData, currency, isFavorite) => {
     
     return {
 	key: token.contractAddress,
-	    ...token,
-	    ...tokenMarketData,
+	...tokenMarketData,
+	...token,	
 	marketCap,
 	renderRowCache,
 	isFavorite: isFavorite
@@ -86,15 +87,16 @@ export const getTokensSortedByMarketCap = createSelector(
     [getTokensWithMarketData,
      (state) => state.marketData.assets,
      getSelectedCurrency,
-     state => state.data.favoriteTokens
+     state => state.data.favoriteTokens,
+     getTokensDct
     ],
-    (tokens, marketData, currency, favoriteTokens) => {
+    (tokens, marketData, currency, favoriteTokens, tokensDct) => {
 	let isFavoriteDCT = {};
 	favoriteTokens.map(tokenAddress => {
 	    isFavoriteDCT[tokenAddress] = 1;
 	});
 	
-	const favoriteTokensList = favoriteTokens.map(tokenAddress => _prepareTokenObject(TOKENS_DCT[tokenAddress], marketData, currency, true));	    
+	const favoriteTokensList = favoriteTokens.map(tokenAddress => _prepareTokenObject(tokensDct[tokenAddress], marketData, currency, true));	    
 	const otherTokensList = tokens.filter((token) => {
 	    return isFavoriteDCT[token.contractAddress] !== 1;
 	}).map((token) => _prepareTokenObject(token, marketData, currency, false));
@@ -143,13 +145,14 @@ const getAddressAssetsFromEthplorer = createSelector(
 export const getAssets = createSelector(
     [getAddressAssetsFromEthplorer,
      (state) => state.marketData.assets,
-     getSelectedCurrency],
+     getSelectedCurrency,
+     getTokensDct],
     (assetsEthplorer, marketData,
-     currency) => {
+     currency, tokensDct) => {
 	 if (!assetsEthplorer) { return []; }
 	 return Object.keys(assetsEthplorer).map((symbol, index) => {
 	     const assetEthplorer = assetsEthplorer[symbol];
-	     const assetModel = TOKENS_DCT[assetEthplorer.address] || {};
+	     const assetModel = tokensDct[assetEthplorer.address] || {};
 	     const assetMarketInfo = _getMarketDataForAsset(assetModel.cc_ticker, marketData, currency);
 	     const price = assetMarketInfo.rate;
 	     const balance = assetsEthplorer[symbol].balance;
@@ -167,7 +170,7 @@ export const getAssets = createSelector(
 		 price,
 		 balanceFiat,
 		 marketInfo: assetMarketInfo,
-		     ...assetModel,
+		 ...assetModel,
 		 contractAddress: assetEthplorer.address
 	     };
 	     return asset;
@@ -178,15 +181,16 @@ export const getAssets = createSelector(
 
 
 export const getAsset = createSelector(
-    [getAssets,
-     (state, props) => props.symbol],
+    [
+	getAssets,
+	(state, props) => props.symbol],
     (assets, symbol) => assets.filter(a => a.symbol === symbol)[0]
 );
 
 
 export const getAssetsWithPrice = createSelector(
     getAssets,
-    (assets) => assets.filter((asset) => asset.price > 0)
+    (assets) => assets.filter((asset) => asset.has_cc_ticker)
 );
 
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { ifIphoneX } from 'react-native-iphone-x-helper';
 import { StyleSheet, View, Text, Dimensions } from 'react-native';
 
 
@@ -6,7 +7,12 @@ const styles = StyleSheet.create({
     container: {
 	width: 300,
 	backgroundColor: '#E33E59',
-	padding: 15
+	padding: 15,
+	...ifIphoneX({
+	    paddingTop: 45
+	}, {
+	    paddingTop: 15
+	})
     },
     title: {
 	fontSize: 18,

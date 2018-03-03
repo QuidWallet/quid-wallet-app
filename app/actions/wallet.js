@@ -1,8 +1,9 @@
 import { Navigation } from 'react-native-navigation';
 import ethplorerService from 'quid-wallet/app/services/ethplorerApiService';
 import { changeAppRoot } from 'quid-wallet/app/actions/app';
-import { getWallets } from 'quid-wallet/app/data/selectors';
+import { getWallets, getAssetsWithPrice } from 'quid-wallet/app/data/selectors';
 import FabricService from 'quid-wallet/app/services/FabricService';
+import { fetchMarketData } from './market';
 
 
 export const actions = {
@@ -37,12 +38,15 @@ export const fetchAddressAssets = (address) => {
 
 
 export const selectWallet = (address) => {
-    return ((dispatch) => {
+    return ((dispatch, getState) => {
 	dispatch({
 	    type: actions.SELECT_WALLET,
 	    payload: { address }
 	});
-	dispatch(fetchAddressAssets(address));	
+	dispatch(fetchAddressAssets(address));
+	const state = getState();
+	const tokensInWallet = getAssetsWithPrice(state);
+	dispatch(fetchMarketData(tokensInWallet));
     });
 };
 
@@ -58,7 +62,7 @@ export const linkWatchWallet  = (address) => {
 	    const icons = ['crab', 'deer', 'dog',
 			   'fox', 'gorilla', 'turtle'];
 	    
-	
+	    
 	    wallets.map((wallet) => {
 		dct[wallet.icon] = 1;
 	    });
@@ -72,9 +76,7 @@ export const linkWatchWallet  = (address) => {
 	const walletCount = wallets.length + 1;
 	FabricService.logAddressAdded(walletCount);
 	
-	
 	const icon = chooseIcon(); 
-	
 	dispatch({
 	    type: actions.LINK_WATCH_WALLET,
 	    payload: { address, icon } 

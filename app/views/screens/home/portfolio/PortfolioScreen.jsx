@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, AppState } from 'react-native';
+import { View, AppState, Platform } from 'react-native';
+import { connect } from 'react-redux';
 import PortfolioHeader from 'quid-wallet/app/views/screens/home/portfolio/components/portfolioHeader';
 import wrapWithCurrencySwitcher from 'quid-wallet/app/views/components/currency-switcher';
 import PositionsContainer from './components/PositionsContainer';
-
+import { stopAllRefreshers } from 'quid-wallet/app/actions/app';
 
 class PortfolioScreen extends React.Component {
     static navigatorStyle = {
@@ -28,7 +29,11 @@ class PortfolioScreen extends React.Component {
     }
 
     _handleAppStateChange = (nextAppState) => {
-	// for rerendering screen on resume
+	if (Platform.OS === "ios") {
+    	    this.props.stopAllRefreshers();
+	}
+	
+	// for rerendering screen on resume	
 	this.setState({appState: nextAppState});
     }
     
@@ -36,7 +41,7 @@ class PortfolioScreen extends React.Component {
     render() {
 	return (
 	    <View style={{flex: 1}}>
-		<PortfolioHeader navigator={this.props.navigator}/>
+		<PortfolioHeader navigator={this.props.navigator} appState={this.state.appState}/>
 		<PositionsContainer navigator={this.props.navigator}/>
 	    </View>
 	);
@@ -44,4 +49,7 @@ class PortfolioScreen extends React.Component {
 }
 
 
-export default wrapWithCurrencySwitcher(PortfolioScreen, true, 'PortfolioScreen', false);
+export default connect(null, {
+    stopAllRefreshers })(
+    wrapWithCurrencySwitcher(PortfolioScreen, true, 'PortfolioScreen', false)
+);

@@ -6,7 +6,9 @@ export const actions = {
     CHANGE_ROOT: 'CHANGE_ROOT',
     TOGGLE_HIDDEN_BALANCE: 'TOGGLE_HIDDEN_BALANCE',
     SELECT_SCREEN: 'SELECT_SCREEN',
-    TOGGLE_FAVORITE_TOKEN: 'TOGGLE_FAVORITE_TOKEN'    
+    TOGGLE_FAVORITE_TOKEN: 'TOGGLE_FAVORITE_TOKEN',
+    UPDATE_TOKENS_LIST: 'UPDATE_TOKENS_LIST',
+    STOP_ALL_REFRESHERS: 'STOP_ALL_REFRESHERS'
 };
 
 
@@ -15,6 +17,23 @@ export function changeAppRoot(root) {
 	type: actions.CHANGE_ROOT,
 	payload: {
 	    root
+	}
+    };
+}
+
+
+export function stopAllRefreshers() {
+    return {
+	type: actions.STOP_ALL_REFRESHERS
+    };
+}
+
+export function updateTokensList({tokens, version}) {
+    return {
+	type: actions.UPDATE_TOKENS_LIST,
+	payload: {
+	    tokens,
+	    version
 	}
     };
 }
@@ -34,7 +53,7 @@ export function toggleFavoriteToken(tokenAddress) {
 	// #fabric-analytics
 	const token = getTokenWithMarketInfo(state, {asset: {contractAddress: tokenAddress}});
 	const favoriteTokensCount = state.data.favoriteTokens.length;
-	const toggleAction = (token.isFavorite ? 'ADD' : 'REMOVE')	
+	const toggleAction = (token.isFavorite ? 'ADD' : 'REMOVE');
 	FabricService.logFavoriteTokenToggled(token.symbol, favoriteTokensCount, toggleAction);
     };
 }

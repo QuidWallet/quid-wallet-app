@@ -15,7 +15,7 @@ import {
 import { toFixed } from 'quid-wallet/app/utils';
 import PriceFormatted from 'quid-wallet/app/views/components/PriceFormatted';
 import HideBalanceToggle from 'quid-wallet/app/views/components/wallet/HideBalanceToggle';
-import TimeAgo from 'quid-wallet/app/views/components/TimeAgo';
+import { TimeAgoWithIcon } from 'quid-wallet/app/views/components/TimeAgo';
 import TransparentNavBar from 'quid-wallet/app/views/components/TransparentNavBar';
 import { systemWeights, human } from 'react-native-typography';
 
@@ -71,31 +71,45 @@ const styles = StyleSheet.create({
 
 
 class TotalAssetsSection extends React.PureComponent {
+	
     render() {
 	const {changeAbs, changePerc, isBalanceHidden,
 	       assetsBalance, currency, ts} = this.props;
-	
-	const changeSign = changeAbs >= 0 ? "+" : "";
-	const changePercStr = changePerc !== 0 ? `${toFixed(changePerc, 2)}%` : "-";    
-	let assetsChange = changeSign.concat(toFixed(changeAbs, 2)).concat(" (").concat(changePercStr).concat(")");
-	if (isBalanceHidden) { assetsChange = changePercStr; }
+		   
 	const assetsChangeColor = changeAbs >= 0 ? "#00BF19" : "#E33E59";
-	
+	const changeSign = changeAbs >= 0 ? "+" : "-";
+	const changePercStr = changePerc !== 0 ? `${toFixed(Math.abs(changePerc), 2)}%` : "-";    
+	let assetsChange;
+	if (isBalanceHidden) {
+	    assetsChange = changeSign.concat(changePercStr);
+	} else {
+	    const changeSignPerc = changeAbs >= 0 ? "" : "-";	    
+	    assetsChange = ` (${changeSignPerc}${changePercStr})`;
+	}
+
 	return (
-	    <View style={styles.totalAssetsSectionContainer}>
-	      <Text style={[...human.caption2,styles.updated]}>Updated {TimeAgo({timestamp: ts})} </Text>
-	      
-	      <View style={styles.totalAssetsDigitContainer}>
+		
+		<View style={styles.totalAssetsSectionContainer}>
+		<TimeAgoWithIcon timestamp={ts} style={
+		    [...human.caption2,
+		     styles.updated
+		    ]
+		} />
+		
+		<View style={styles.totalAssetsDigitContainer}>
 		<HideBalanceToggle hiddenTextStyle={[human.calloutWhite, styles.totalAssetsValue]}> 
-		  <PriceFormatted value={assetsBalance} currency={currency} style={[human.calloutWhite, styles.totalAssetsValue]} />
+		<PriceFormatted value={assetsBalance} currency={currency} style={[human.calloutWhite, styles.totalAssetsValue]} />
 		</HideBalanceToggle>
-	      </View>
-	      
-	      <View style={styles.assetChangeContainer}>
+	        </View>
+		
+		<View style={{alignItems: 'flex-end'}}>
+		    <View style={{flexDirection: 'row',}}>
+		{isBalanceHidden ? null : <Text style={[human.caption1, styles.assetChangeValue, {color: assetsChangeColor}]}>{changeSign}</Text>}	
+		{isBalanceHidden ? null : <PriceFormatted value={Math.abs(changeAbs)} style={[human.caption1, styles.assetChangeValue, {color: assetsChangeColor}]}/>}
 		<Text style={[human.caption1, styles.assetChangeValue, {color: assetsChangeColor}]}>{assetsChange}</Text>
-	      </View>
-	      
-	    </View>
+		</View>
+		</View>	      
+		</View>
 	);
     }
 }
@@ -115,7 +129,7 @@ const TableTitles = () => {
     return (
 	<View style={styles.AssetRowTitlesContainer}>
 	  <View style={{ flex: 2 }}>
-	    <Text style={[ styles.tableTitle, {textAlign: 'left', marginLeft: 46}]}>Token</Text>
+	    <Text style={[ styles.tableTitle, {textAlign: 'left', marginLeft: 46, minWidth: 100}]}>Token</Text>
 	  </View>
 	  <View style={{ flex: 3 }}>
 	    <Text style={styles.tableTitle}>Price</Text>
@@ -135,7 +149,7 @@ class PortfolioHeader extends React.PureComponent {
 	      <View style={styles.androidBottomMargin}>
 		<TransparentNavBar navigator={this.props.navigator} title="Portfolio" />
 	      </View>
-	      <ConnectedTotalAssetsSection />
+		<ConnectedTotalAssetsSection appState={this.props.appState}/>
 	      { TableTitles() }
 	    </View>
 	);

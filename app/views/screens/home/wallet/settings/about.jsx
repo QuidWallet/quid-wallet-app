@@ -87,16 +87,16 @@ class AboutScreen extends React.Component {
 
 		<ListTitle title="Powered by"/>
 		<List>
-		  <TouchableOpacity onPress={() => Linking.openURL("https://infura.io/") }>
+		<TouchableOpacity onPress={() => Linking.openURL("https://infura.io/").catch(() => null) }>
 		    <ListItem title="Infura" rightIcon={{name: "external-link", type: 'evilicon'}} />
 		  </TouchableOpacity>
-		  <TouchableOpacity onPress={() => Linking.openURL("https://etherscan.io/") }>
+		  <TouchableOpacity onPress={() => Linking.openURL("https://etherscan.io/").catch(() => null) }>
 		    <ListItem title="Etherscan" rightIcon={{name: "external-link", type: 'evilicon'}} />
 		  </TouchableOpacity>
-		  <TouchableOpacity onPress={() => Linking.openURL("https://www.cryptocompare.com/") }>
+		<TouchableOpacity onPress={() => Linking.openURL("https://www.cryptocompare.com/").catch(() => null) }>
 		    <ListItem title="Cryptocompare" rightIcon={{name: "external-link", type: 'evilicon'}} />
 		  </TouchableOpacity>
-		  <TouchableOpacity onPress={() => Linking.openURL("https://ethplorer.io/") }>
+		  <TouchableOpacity onPress={() => Linking.openURL("https://ethplorer.io/").catch(() => null) }>
 		    <ListItem title="Ethplorer" rightIcon={{name: "external-link", type: 'evilicon'}} />
 		  </TouchableOpacity>		  
 		</List>

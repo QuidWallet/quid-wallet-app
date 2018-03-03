@@ -37,7 +37,7 @@ export const toggleCurrency = (payload) => {
 	if (addingCurrency) {
 	    // if enabling currency	    
 	    // TODO optimize network request
-	    dispatch(fetchMarketData(payload));
+	    dispatch(fetchMarketData());
 	}
     };
 };

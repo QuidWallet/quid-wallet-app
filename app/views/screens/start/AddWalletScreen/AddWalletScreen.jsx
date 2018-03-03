@@ -48,7 +48,7 @@ class AddWalletScreen extends React.Component {
 	const isAddress = this.web3.isAddress(address);
 	this.setState({addressIsValid: isAddress});
 	if (!isAddress){
-	    FabricService.logAddWalletFailed(address.length);
+	    FabricService.logAddingAddressFailed(address.length);
 	    this.setState({warning: true});	    
 	} else{
 	    this.setState({inputTheme: "bordered", warning: false});
