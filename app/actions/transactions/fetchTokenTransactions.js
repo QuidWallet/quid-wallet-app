@@ -5,104 +5,101 @@ import { generateAssetTransferId } from 'quid-wallet/app/data/reducers/models/as
 import { actions } from './actions';
 
 
-const _fetchERC20TokenTransactions = (({
-    state, dispatch, address,
-    tokenAddr, curBlockNumber, web3}) => {
-	const tokensDct = getTokensDct(state);
-	const asset = tokensDct[tokenAddr];
-	
-	const createTokenTransfers = (err, txs, direction) => {
-	    if (!err) {
-		const txPromises = txs.map((tx) => {
-		    return web3.eth.getBlockPromise(tx.blockNumber)
-			.then((block) => {
-			    const counterpartyAddress = (direction === 'IN') ? tx.args._from : tx.args._to;
-			    const rawValue = tx.args._value;
-			    const value = displayBigNumber(rawValue, asset.decimal);
-			    const transfer = {
-				txHash: tx.transactionHash,
-				address,
-				tokenAddress: tokenAddr,
-				timestamp: block.timestamp,
-				blockNumber: tx.blockNumber,
-				counterpartyAddress,
-				direction: direction,
-				value,
-				rawValue,
-				status: 1
-			    };
-			    const id = generateAssetTransferId(transfer);
-			    transfer.id = id;			    
-			    return transfer;
-			});		    
-		});
-		
-		return Promise.all(txPromises).then((transfers) => {
-		    dispatch({type: actions.CREATE_ASSET_TRANSFERS, payload: transfers});
-		    dispatch({type: actions.GOT_TOKEN_TRANSACTIONS, payload: {
-			address,
-			tokenAddress: tokenAddr,
-			blockNumber: curBlockNumber,
-			direction
-		    }});
-		});		
-	    }	    
+// create transfer objects from token contract transfer events 
+async function _createTokenTransfers({txs, direction, web3,
+				      token, address}) {
+    const txPromises = txs.map( async tx => {
+	const block = await web3.eth.getBlockPromise(tx.blockNumber);
+	const counterpartyAddress = (direction === 'IN') ? tx.args._from : tx.args._to;
+	const rawValue = tx.args._value;
+	const value = displayBigNumber(rawValue, token.decimal);
+	const transfer = {
+	    txHash: tx.transactionHash,
+	    address,
+	    tokenAddress: token.contractAddress,
+	    timestamp: block.timestamp,
+	    blockNumber: tx.blockNumber,
+	    counterpartyAddress,
+	    direction: direction,
+	    value,
+	    rawValue,
+	    status: 1
 	};
-
-	// getting last block number checked
-	const lastBlockNumberIn = (state.data.lastBlockNumberCheck[address] || {})[`${tokenAddr}-IN`] || 0;
-	const lastBlockNumberOut = (state.data.lastBlockNumberCheck[address] || {})[`${tokenAddr}-OUT`] || 0;
-
-	// incoming transfers
-	
-	if (lastBlockNumberIn < curBlockNumber) {
-	    const transferEventIn = web3Service.incomingTokenTransferEvents({
-		tokenAddr,
-		address,
-		fromBlock: lastBlockNumberIn,
-		toBlock: curBlockNumber
-	    });
-	    transferEventIn.get((err, tx) => createTokenTransfers(err, tx, 'IN'));	    
-	}	
-	
-	// outgoing transfers
-	if (lastBlockNumberOut < curBlockNumber) {
-	    const transferEventOut = web3Service.outgoingTokenTransferEvents({
-		tokenAddr,
-		address,
-		fromBlock: lastBlockNumberOut,
-		toBlock: curBlockNumber
-	    });
-	    transferEventOut.get((err, tx) => createTokenTransfers(err, tx, 'OUT'));
-	}
-
-	// dispatch event to stop spinner 
-	if (lastBlockNumberIn === curBlockNumber && lastBlockNumberOut === curBlockNumber) {
-	    dispatch({type: actions.STOP_SPINNER, payload: {address, tokenAddress: tokenAddr}});
-	}
+	const id = generateAssetTransferId(transfer);
+	transfer.id = id;			    
+	return transfer;	
     });
+    
+    return await Promise.all(txPromises);   
+};
 
 
-export const fetchTokenTransactions = (address, tokenAddr) => {
-    return ((dispatch, getState) => {
-	dispatch({type: actions.FETCHING_TOKEN_TRANSACTIONS, payload: {address, tokenAddress: tokenAddr}});
-	
-	const state = getState();
-	const web3 = web3Service.getWeb3();
-	const lastCheckBlockDct = (state.data.lastBlockNumberCheck[address] || {});
-	
-	// get current block number
-	web3.eth.getBlockNumberPromise().then(curBlockNumber => {
-	    // if erc20 token
-	    return _fetchERC20TokenTransactions({
-		state,
-		lastCheckBlockDct,
-		address,
-		dispatch,
-		curBlockNumber,
-		tokenAddr,
-		web3
-	    });
+// fetch direction {IN, OUT} function
+async function _fetchTransferDirection({dispatch, state, address,
+					curBlockNumber,
+					web3, token, direction}) {
+    const tokenAddress = token.contractAddress;
+    // getting last block number checked
+    const lastBlockNumberIn = (state.data.lastBlockNumberCheck[address] || {})[`${tokenAddress}-${direction}`] || 0;
+    
+    if (lastBlockNumberIn < curBlockNumber) {
+	const key = ((direction === "IN") ? "_to" : "_from");
+	// get transfer events from blockchain
+	const txs = await web3Service.getTokenTransferEvents({
+	    tokenAddress,
+	    address,
+	    fromBlock: lastBlockNumberIn,
+	    toBlock: curBlockNumber,
+	    key
 	});
-    });
+	
+	if (txs && txs.length > 0) {
+	    // convert blockchain events to local transfer objects
+	    const transfers = await _createTokenTransfers({txs, direction, web3,
+						       token, address});
+	
+	
+	    dispatch({type: actions.CREATE_ASSET_TRANSFERS, payload: transfers});
+	    dispatch({type: actions.GOT_TOKEN_TRANSACTIONS, payload: {
+		address,
+		tokenAddress: token.contractAddress,
+		blockNumber: curBlockNumber,
+		direction
+	    }});
+	}
+    }
+}
+
+
+export const fetchTokenTransactions = (address, tokenAddress) => {
+    return async (dispatch, getState) => {
+	dispatch({type: actions.FETCHING_TOKEN_TRANSACTIONS, payload: {address, tokenAddress}});
+	const state = getState();
+	const tokensDct = getTokensDct(state);
+	const token = tokensDct[tokenAddress];
+	const web3 = web3Service.getWeb3();    
+	
+	try {
+	    // get current block number
+	    const curBlockNumber = await web3.eth.getBlockNumberPromise();    
+
+	    await Promise.all([
+		// get directions IN
+		_fetchTransferDirection({dispatch, state, address,
+					 curBlockNumber,
+					 web3, token, direction: "IN"}),
+		
+		
+		// get direction OUT
+		_fetchTransferDirection({dispatch, state, address,
+					 curBlockNumber,
+					 web3, token, direction: "OUT"})
+	    ]);
+
+	    dispatch({type: actions.STOP_SPINNER});
+	} catch(err) {
+	    dispatch({type: actions.STOP_SPINNER});
+	    throw (err);
+	}	
+    };
 };

@@ -45,7 +45,14 @@ export function dePrefix(str = '') {
     }
     return str;
 }
-  
+
+export function padStringTo32bytes(str = '') {
+    let n = dePrefix(str);
+	while (n.length < 64) {
+	    n = "0" + n;
+	}
+    return "0x" + n;1
+}
 
 export function shortAddress(address, num, showEnd = true) {
     const sanitized = dePrefix(address);

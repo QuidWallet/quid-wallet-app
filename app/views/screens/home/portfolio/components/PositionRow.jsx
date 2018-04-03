@@ -5,6 +5,7 @@ import TokenAvatar from 'quid-wallet/app/views/components/TokenAvatarSmall';
 import PriceFormatted from 'quid-wallet/app/views/components/PriceFormatted';
 import PortfolioQuantityFormatted from 'quid-wallet/app/views/screens/home/portfolio/components/PortfolioQuantityFormatted';
 import { systemWeights, human } from 'react-native-typography';
+import { getPriceChangeFormatObj } from 'quid-wallet/app/views/helpers/price';
 
 
 const styles = StyleSheet.create({
@@ -44,14 +45,15 @@ const styles = StyleSheet.create({
 });
 
 
-const AssetPriceChange = ({ currency, price, priceChange }) => {
-    let digitsAfterDot, priceChangeAbs, sign, color;
-    
-    if (priceChange !== 0) {
-        digitsAfterDot = (price < 1) ? 6 : 2;
-        priceChangeAbs = toFixed((priceChange * price) * 0.01, digitsAfterDot);
-        sign = (priceChange < 0) ? "" : "+";
-        color = (priceChange < 0) ? "#E33E59" : "#00BF19";
+const PriceChangeCell = ({ currency, price, priceChangePerc, priceChangeAbs }) => {
+    let sign, color;
+
+    if (priceChangePerc !== 0) {
+	let priceObj = getPriceChangeFormatObj({price, priceChangePerc, priceChangeAbs, currency});
+	sign = priceObj.sign;
+	color = priceObj.color;
+	priceChangeAbs = priceObj.priceChangeAbs;
+	price = priceObj.price;
     } else {
 	color = "#24283666"; // gray
 	priceChangeAbs = "-";
@@ -60,14 +62,14 @@ const AssetPriceChange = ({ currency, price, priceChange }) => {
     return (
         <View style={styles.centerVertically}>
           <PriceFormatted style={[human.callout,styles.absoluteValue]} value={price} currency={currency}/>	    
-	  <Text style={[human.caption1, styles.changeValue ,{ color }]}>
-                {sign}{priceChangeAbs}
-            </Text> 
-        </View>
+	  <Text style={[human.caption1, styles.changeValue, { color }]}>
+            {sign}{priceChangeAbs}
+        </Text> 
+	</View>
     );
 }
 
-const HoldingsChange = ({ currency, balanceChangeAbs, balanceChangePerc, balance, qnty, isBalanceHidden }) => {
+const HoldingsCell = ({ currency, balanceChangeAbs, balanceChangePerc, balance, qnty, isBalanceHidden }) => {
     let sign, color, balanceChangePercStr;
     const abs = (x) => x > 0 ? x : -x;
     balanceChangePercStr = `${toFixed(balanceChangePerc, 2)}%`;
@@ -105,24 +107,39 @@ const HoldingsChange = ({ currency, balanceChangeAbs, balanceChangePerc, balance
 }
 
 
-class AssetPriceRow extends React.PureComponent {
+class PositionRow extends React.PureComponent {
     render() {
-	const { symbol, contractAddress } = this.props;
+	const { token, currency, isBalanceHidden } = this.props;
 	return (
             <View style={styles.assetRow}>
               <View style={{flex: 2}}>
-		<TokenAvatar symbol={symbol} contractAddress={contractAddress} />
-              </View>
+		<TokenAvatar symbol={token.symbol} contractAddress={token.contractAddress} />
+		</View>
+		<View style={styles.cell}>
+	      	{ PriceChangeCell({
+		    currency,
+		    price: token.price,
+		    priceChangeAbs: token.priceChangeAbs,
+		    priceChangePerc: token.priceChangePerc
+		}) }
+	    </View>
               <View style={styles.cell}>
-		{ AssetPriceChange(this.props) }
-              </View>
-              <View style={styles.cell}>
-		{ HoldingsChange(this.props) } 
-              </View>	      
-            </View>
+	    	{ HoldingsCell({
+		    currency,
+		    price: token.price,
+		    priceChangeAbs: token.priceChangeAbs,
+		    priceChangePerc: token.priceChangePerc,
+		    balanceChangeAbs: token.balanceChangeAbs,
+		    balanceChangePerc: token.balanceChangePerc,
+		    balance: token.balance,
+		    qnty: token.qnty,
+		    isBalanceHidden
+		}) }
+	    </View>		
+       </View>
 	);
     }
 }
 
 
-export default AssetPriceRow;
+export default PositionRow;

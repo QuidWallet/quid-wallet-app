@@ -1,23 +1,22 @@
 import { actions } from 'quid-wallet/app/actions/wallet';
 import { actions as txActions } from 'quid-wallet/app/actions/transactions';
 
-const newAssetDct = {
-    'ETH': {
-	balance: 0,
-	rawBalance: 0,
-	address: '0x000_ether', // TODO move to constants.js
-	decimals: 18
-    }
-};
 
-export function addressAssets(state = {}, action) {
+const emptyTokensList = [{
+    qnty: 0,
+    rawQnty: 0,
+    tokenAddress: '0x000_ether', // TODO move to constants.js
+}];
+
+
+export function addressTokens(state = {}, action) {
     let nextState;
     let address;
     switch (action.type) {
-    case actions.LINK_WATCH_WALLET:
+    case actions.ADD_WALLET:
 	address = action.payload.address;
 	const tempDct = {};
-	tempDct[address] = newAssetDct;
+	tempDct[address] = emptyTokensList;
 	nextState = {
 	    ...state,
 	    ...tempDct
@@ -28,11 +27,27 @@ export function addressAssets(state = {}, action) {
 	    ...state,
 	    ...action.payload
 	};
+	break;
+    case actions.GOT_TOKEN_BALANCE:
+	const { walletAddress, tokenBalanceData } = action.payload;
+	const walletTokens = state[walletAddress] || [];
+	const newWalletTokens = [...walletTokens];
+	
+	// add token balance data to state if it wasn't there
+	if (walletTokens.filter(({ tokenAddress }) => tokenAddress === tokenBalanceData.tokenAddress).length === 0) {
+	    newWalletTokens.push(tokenBalanceData);
+	}
+	
+	nextState = {
+	    ...state
+	};
+	nextState[walletAddress] = newWalletTokens;
 	break;	
+	
     case actions.UNLINK_WALLET:
 	address = action.payload.address;
 	const emptyDict = {};
-	emptyDict[address] = {};
+	emptyDict[address] = [];
 	nextState = {
 	    ...state,
 	    ...emptyDict
@@ -47,11 +62,12 @@ export function addressAssets(state = {}, action) {
 }
 
 
+
 export function activeAddress(state = '', action) {
     let nextState;
     switch (action.type) {
     case actions.SELECT_WALLET:
-    case actions.LINK_WATCH_WALLET:
+    case actions.ADD_WALLET:
 	const { address } = action.payload;
 	nextState = address;
 	break;	
@@ -70,7 +86,7 @@ export function lastBlockNumberCheck(state = {}, action) {
     const tempDict = {};
     
     switch (action.type) {
-    case actions.LINK_WATCH_WALLET:
+    case actions.ADD_WALLET:
     case actions.UNLINK_WALLET:
 	address = action.payload.address;
 	tempDict[address] = {};
@@ -96,6 +112,32 @@ export function lastBlockNumberCheck(state = {}, action) {
 	break;
     }
 
+    return nextState;
+}
+
+
+export function displayTokensWalletSettings(state = {}, action) {
+    let nextState;
+    switch (action.type) {
+    case actions.ADD_WALLET:
+	nextState = { ...state };
+	nextState[action.payload.address] = {};
+	break;		
+    case actions.TOGGLE_DISPAY_TOKEN_SETTING:
+	const { tokenAddress, value, address } = action.payload;
+	nextState = { ...state };
+	nextState[address] = {...(nextState[address]||{})};
+	nextState[address][tokenAddress] = value;
+    	break;	
+    case actions.UNLINK_WALLET:
+	nextState = {...state};
+	nextState[action.payload.address] = {};	
+	break;	
+    default:
+	nextState = state;
+	break;
+    }
+    
     return nextState;
 }
 

@@ -22,8 +22,7 @@ export function marketData(state = initialMarketData, action) {
 	    ...action.payload.assets
 	};
 	nextState = {
-	    timestamp: action.payload.timestamp,
-	    assets
+	    assets	    
 	};
 	break;	
     default:

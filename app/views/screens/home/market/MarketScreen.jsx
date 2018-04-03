@@ -1,11 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { fetchMarketData } from 'quid-wallet/app/actions/market';
-import { StyleSheet, View, VirtualizedList,
+import { StyleSheet, View, FlatList,
 	 ActivityIndicator, Platform,
 	 TouchableOpacity, Text } from 'react-native';
-import { AssetPriceRow, AssetPriceHeaderRow } from 'quid-wallet/app/views/screens/home/exchange/components/assetPriceRow';
-import { getSelectedCurrency, getTokensSortedByMarketCap } from 'quid-wallet/app/data/selectors';
+import { TokenPriceRow, TokenPriceHeaderRow } from 'quid-wallet/app/views/screens/home/market/components/tokenPriceRow';
+import { getSelectedCurrency, getMarketTokens } from 'quid-wallet/app/data/selectors';
 import wrapWithCurrencySwitcher from 'quid-wallet/app/views/components/currency-switcher';
 import { SearchBar } from 'react-native-elements';
 import escapeRegExp from 'escape-string-regexp';
@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
     container: {
 	flex: 1,
 	backgroundColor: '#242836',
-	//paddingBottom: 120
+
     },
     button: {
 	alignItems: 'center',
@@ -50,9 +50,9 @@ class MarketScreen extends React.Component {
     }
 
     _getFoundTokens(input) {
-	const { assets } = this.props;	
+	const { tokens } = this.props;	
 	const match = new RegExp(escapeRegExp(input), 'i');
-	return assets.filter((asset) => match.test(asset.symbol));
+	return tokens.filter((token) => match.test(token.symbol));
     }
     
     _onChangeSearchString(input) {
@@ -102,23 +102,24 @@ class MarketScreen extends React.Component {
 	FabricService.logScreenPullRefreshed('quidwallet.home.exchange.MarketScreen');	
     }
     
-    _fetchData(tokens) {
-	const { navigator, fetchMarketData} = this.props;
-	
-	return fetchMarketData(tokens).catch(() =>{
+    async _fetchData(tokens) {
+	const { navigator, fetchMarketData} = this.props;	
+	try {
+	    await fetchMarketData(tokens);
+	} catch(err) {
 	    navigator.showInAppNotification({
 		screen: "quidwallet.components.Notification", // unique ID registered with Navigation.registerScreen
 		passProps: {}, // simple serializable object that will pass as props to the lightbox (optional)
 		autoDismissTimerSec: 3 // auto dismiss notification in seconds
 	    });		
-	});	
+	}
     }    
     
     
     _renderFooter() {
 	// don't render footer when searching
 	if (this.state.searchString) { return null }
-	const { assets } = this.props;
+	const { tokens } = this.props;
 
 	// if fetching show activity indicator
 	if (this.props.fetchingData) {
@@ -129,14 +130,13 @@ class MarketScreen extends React.Component {
 	return (
 	    <TouchableOpacity style={{
 		height: 44,
-	    }} onPress={() => {
-		    const page = this.state.page + 1;
-		    const tokensToFetch = paginateArray(assets, page, PAGE_SIZE);
-		    this._fetchData(tokensToFetch).then(() => {
-			this.setState({page});
-			const index = page * PAGE_SIZE;
-			this.list.scrollToIndex({index});
-		    });
+	    }} onPress={async () => {
+		const page = this.state.page + 1;
+		const tokensToFetch = paginateArray(tokens, page, PAGE_SIZE);		
+		await this._fetchData(tokensToFetch);
+		this.setState({page});
+		const index = page * PAGE_SIZE;
+		this.list.scrollToIndex({index});
 	    }}>
 		<Text style={{
 		    color: "#fff",
@@ -154,15 +154,18 @@ class MarketScreen extends React.Component {
 
     
     render() {
-	const { assets } = this.props;
+	const { tokens } = this.props;
 	
 	let showingTokens;
 	if (this.state.searchString) {
-	    showingTokens = this._getFoundTokens(this.state.searchString)
+	    showingTokens = this._getFoundTokens(this.state.searchString);
 	} else {
 	    // paginate tokens (if user isn't searching tokens)
-	    showingTokens = assets.filter((item, index) => index < (this.state.page + 1) * PAGE_SIZE)
+	    showingTokens = tokens.filter((item, index) => index < (this.state.page + 1) * PAGE_SIZE);
 	}
+
+	// get oldest timestamp
+	const timestamp = Math.min(...showingTokens.map(item => item.timestamp));
 	
 	//if screen is not active rerender only visible part
 	let windowSize;
@@ -174,37 +177,38 @@ class MarketScreen extends React.Component {
 
 	const ITEM_HEIGHT = 81;
 
+	// removeClippedSubviews={true}
+	// windowSize={windowSize}
+	// 	    getItemCount={(data) => data ? data.length : 0}
+	// getItem={(data, index) => data[index]}
+
 	return (	    
 	    <View style={styles.container}>
 		<TransparentNavBar title="Market" navigator={this.props.navigator}/>
 		{ this._renderSearchBar() }		
-		<VirtualizedList	       
-ListHeaderComponent={AssetPriceHeaderRow(this.props.timestampUpdated)}
-data={showingTokens}
-onRefresh={this._onRefresh.bind(this)}
-refreshing={this.props.fetchingData}
-ListFooterComponent={this._renderFooter.bind(this)}
-getItemCount={(data) => data ? data.length : 0}
-getItem={(data, index) => data[index]}
-initialNumToRender={7}
-ref={(ref) => { this.list = ref; }}		
-windowSize={windowSize}
-getItemLayout={(data, index) => ({length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index})}
-removeClippedSubviews={true}
-ItemSeparatorComponent={() => <View style={{height: 1, backgroundColor: '#3a3d4a'}} />}	    
-renderItem={({ item, index }) => <AssetPriceRow currency={this.props.currency} asset={item} navigator={this.props.navigator} index={index}/>} />
-	    </View>
+		<FlatList	       
+	    ListHeaderComponent={TokenPriceHeaderRow(timestamp)}
+	    data={showingTokens}
+	    keyExtractor={item => item.contractAddress}
+	    onRefresh={this._onRefresh.bind(this)}
+	    refreshing={this.props.fetchingData}
+	    ListFooterComponent={this._renderFooter.bind(this)}
+	    initialNumToRender={10}
+	    ref={(ref) => { this.list = ref; }}			    
+	    getItemLayout={(data, index) => ({length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index})}
+	    ItemSeparatorComponent={() => <View style={{height: 1, backgroundColor: '#3a3d4a'}} />}	    
+	    renderItem={({ item, index }) => <TokenPriceRow currency={this.props.currency} token={item} navigator={this.props.navigator} index={index}/>} />
+		</View>
 	);
     }
 }
 
 
 const mapStateToProps = state => ({
-    assets: getTokensSortedByMarketCap(state),
+    tokens: getMarketTokens(state),
     fetchingData: state.refreshers.fetchingMarketData,
     currency: getSelectedCurrency(state),
-    activeScreenId: state.activeScreenId,
-    timestampUpdated: state.marketData.timestamp
+    activeScreenId: state.activeScreenId
 });
 
 

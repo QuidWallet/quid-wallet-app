@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, View, FlatList } from 'react-native';
 import { connect } from 'react-redux';
 import { fetchTokenTransactions } from 'quid-wallet/app/actions/transactions';
-import { getActiveWallet, getAssetTransfers } from 'quid-wallet/app/data/selectors';
+import { getAssetTransfers } from 'quid-wallet/app/data/selectors';
 import TransactionRow from './TransactionRow';
 
 
@@ -13,10 +13,22 @@ class TokenTransactions extends React.Component {
 	this._fetchData();
     }
 
-    _fetchData() {
-	const { fetchTokenTransactions, address } = this.props;	
-	const tokenAddress = this.props.asset.address; // token contract address	
-	fetchTokenTransactions(address, tokenAddress);
+    async _fetchData() {
+	const { fetchTokenTransactions, wallet } = this.props;	
+	const tokenAddress = this.props.token.contractAddress; // token contract address
+	try { 
+	    await fetchTokenTransactions(wallet.address, tokenAddress);
+	} catch (err) {
+	    this._showErrorNotification();
+	}	
+    }
+    
+    _showErrorNotification() {
+	this.props.navigator.showInAppNotification({
+	    screen: "quidwallet.components.Notification", // unique ID registered with Navigation.registerScreen
+	    passProps: {}, // simple serializable object that will pass as props to the lightbox (optional)
+	    autoDismissTimerSec: 3 // auto dismiss notification in seconds
+	});			
     }
     
     render() {	
@@ -31,7 +43,7 @@ class TokenTransactions extends React.Component {
 		    onRefresh={() => this._fetchData()}
 		    refreshing={this.props.refreshing}
 		    keyExtractor={this._keyExtractor}
-		    renderItem={({ item }) => <TransactionRow tx={item} asset={this.props.asset} navigator={this.props.navigator}/>}
+		    renderItem={({ item }) => <TransactionRow tx={item} token={this.props.token} navigator={this.props.navigator}/>}
 		/>
 	    </View>
 	);
@@ -40,7 +52,6 @@ class TokenTransactions extends React.Component {
 
 
 const mapStateToProps = (state, props) => ({
-    address: getActiveWallet(state).address,
     transactions: getAssetTransfers(state, props),
     refreshing: state.refreshers.fetchingTransactions
 });

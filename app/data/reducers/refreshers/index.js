@@ -12,11 +12,9 @@ function fetchingTransactions(state = false, action) {
     case txActions.FETCHING_TOKEN_TRANSACTIONS:	
 	nextState = true;
 	break;
-    case txActions.GOT_ETHER_TRANSACTIONS:
-    case txActions.GOT_TOKEN_TRANSACTIONS:
     case txActions.STOP_SPINNER:
     case appActions.STOP_ALL_REFRESHERS:		
-    case walletActions.UNLINK_WALLET:	
+    case walletActions.UNLINK_WALLET:
 	nextState = false;	
 	break;	
     default:

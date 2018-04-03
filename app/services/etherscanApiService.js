@@ -11,7 +11,7 @@ const ETHER_ASSET_DUMMY_ADDRESS = '0x000_ether';
  */
 const etherscanApiService = function() {
     const API_KEY= Config.ETHERSCAN_API_KEY;
-    const URI_HOST = 'https://api.etherscan.io';
+    const URI_HOST = Config.ETHERSCAN_API_HOST;
     
     function getTransactions({address, startBlock=0, endBlock=99999999, page=1, offset=50}) {
 	const url = `${URI_HOST}/api?module=account&action=txlist\
@@ -44,6 +44,7 @@ const etherscanApiService = function() {
 			direction,
 			value,
 			rawValue,
+			isPending: false,
 			status: (txreceipt_status - tx.isError) // success - 1, error - 0
 		    };
 		    const id = generateAssetTransferId(transfer);

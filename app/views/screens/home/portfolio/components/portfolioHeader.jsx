@@ -7,9 +7,10 @@ import {
     View
 } from 'react-native';
 import {
-    getAssetsBalance,
-    getPortfolioChangeAbs,
-    getPortfolioChangePerc,
+    getActiveWalletTotalBalance,
+    getTotalPortfolioChangeAbs,
+    getTotalPortfolioChangePerc,
+    portfolioUpdatedAt,
     getSelectedCurrency
 } from 'quid-wallet/app/data/selectors';
 import { toFixed } from 'quid-wallet/app/utils';
@@ -25,13 +26,13 @@ const styles = StyleSheet.create({
 	height: 193,
 	backgroundColor: '#242836'
     },
-    AssetRowTitlesContainer: {
+    titlesContainer: {
 	flex: 1,
 	flexDirection: 'row',
 	justifyContent: 'space-between',
 	height: 44
     },
-    totalAssetsSectionContainer: {
+    totalBalanceSectionContainer: {
 	height: 80,
 	paddingTop: 10,
 	paddingRight: 12,
@@ -43,7 +44,7 @@ const styles = StyleSheet.create({
 	textAlign: 'right',
 	...systemWeights.bold
     },
-    totalAssetsValue: {
+    totalBalanceValue: {
 	textAlign: 'right',
 	lineHeight: 20
     },	
@@ -71,10 +72,10 @@ const styles = StyleSheet.create({
 
 
 class TotalAssetsSection extends React.PureComponent {
-	
     render() {
-	const {changeAbs, changePerc, isBalanceHidden,
-	       assetsBalance, currency, ts} = this.props;
+	const {
+	    changeAbs, changePerc, isBalanceHidden,
+	    totalBalance, currency, portfolioUpdatedAt } = this.props;
 		   
 	const assetsChangeColor = changeAbs >= 0 ? "#00BF19" : "#E33E59";
 	const changeSign = changeAbs >= 0 ? "+" : "-";
@@ -89,16 +90,16 @@ class TotalAssetsSection extends React.PureComponent {
 
 	return (
 		
-		<View style={styles.totalAssetsSectionContainer}>
-		<TimeAgoWithIcon timestamp={ts} style={
+		<View style={styles.totalBalanceSectionContainer}>
+		<TimeAgoWithIcon timestamp={portfolioUpdatedAt} style={
 		    [...human.caption2,
 		     styles.updated
 		    ]
 		} />
 		
-		<View style={styles.totalAssetsDigitContainer}>
-		<HideBalanceToggle hiddenTextStyle={[human.calloutWhite, styles.totalAssetsValue]}> 
-		<PriceFormatted value={assetsBalance} currency={currency} style={[human.calloutWhite, styles.totalAssetsValue]} />
+		<View style={styles.totalBalanceDigitContainer}>
+		<HideBalanceToggle hiddenTextStyle={[human.calloutWhite, styles.totalBalanceValue]}> 
+		<PriceFormatted value={totalBalance} currency={currency} style={[human.calloutWhite, styles.totalBalanceValue]} />
 		</HideBalanceToggle>
 	        </View>
 		
@@ -116,18 +117,18 @@ class TotalAssetsSection extends React.PureComponent {
 
 
 const ConnectedTotalAssetsSection = connect(state => ({
-    assetsBalance: getAssetsBalance(state),
-    ts: state.marketData.timestamp,
+    portfolioUpdatedAt: portfolioUpdatedAt(state),
     currency: getSelectedCurrency(state),    
     isBalanceHidden: state.data.balanceHidden,
-    changeAbs: getPortfolioChangeAbs(state),
-    changePerc: getPortfolioChangePerc(state)    
+    totalBalance: getActiveWalletTotalBalance(state),
+    changeAbs: getTotalPortfolioChangeAbs(state),
+    changePerc: getTotalPortfolioChangePerc(state)
 }))(TotalAssetsSection);
 
 
 const TableTitles = () => {
     return (
-	<View style={styles.AssetRowTitlesContainer}>
+	<View style={styles.titlesContainer}>
 	  <View style={{ flex: 2 }}>
 	    <Text style={[ styles.tableTitle, {textAlign: 'left', marginLeft: 46, minWidth: 100}]}>Token</Text>
 	  </View>

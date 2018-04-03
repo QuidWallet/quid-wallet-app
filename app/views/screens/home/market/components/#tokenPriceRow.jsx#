@@ -3,10 +3,11 @@ import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import TokenAvatar from 'quid-wallet/app/views/components/TokenAvatar';
 import { systemWeights, human } from 'react-native-typography';
 import { TimeAgoWithIcon } from 'quid-wallet/app/views/components/TimeAgo';
+import { getPriceChangeFormatObj } from 'quid-wallet/app/views/helpers/price';
 
 
 const styles = StyleSheet.create({
-    assetHeaderRow: {
+    tokenHeaderRow: {
         flex: 1,
         flexDirection: 'row',
         height: 44,
@@ -15,7 +16,7 @@ const styles = StyleSheet.create({
         marginTop: 12,
 	marginBottom: 12
     },
-    assetRow: {
+    tokenRow: {
         flex: 1,
         flexDirection: 'row',
         height: 80,
@@ -59,7 +60,7 @@ const cachedStyles = {
 }
 
 
-export const AssetPriceHeaderRow = (timestampUpdated) => {
+export const TokenPriceHeaderRow = (timestampUpdated) => {
     return (
 	    <View>
 	    <TimeAgoWithIcon timestamp={timestampUpdated} style={
@@ -68,7 +69,7 @@ export const AssetPriceHeaderRow = (timestampUpdated) => {
 		]
 	    } />
 	    
-            <View style={styles.assetHeaderRow}>
+            <View style={styles.tokenHeaderRow}>
             <View style={{ flex: 1 }}>
             <Text style={[styles.tableTitle, {textAlign: 'left', marginLeft: 58, minWidth: 100}]}> Token </Text>
             </View>
@@ -81,39 +82,39 @@ export const AssetPriceHeaderRow = (timestampUpdated) => {
 }
 
 
-export class AssetPriceRow extends React.PureComponent {
+export class TokenPriceRow extends React.PureComponent {
     render() {
-	const { asset, navigator } = this.props;
+	const { token, navigator, currency } = this.props;
+	const { price, color, priceChangeString } = getPriceChangeFormatObj({...token, currency});
 	
-	const { renderRowCache } = asset;
 	return (
             <TouchableOpacity onPress={() => {
 		    navigator.push({
-                      screen: "quidwallet.home.exchange.AssetDetailsScreen",
-			passProps: { asset: asset },
-			title: `${asset.symbol}`, // navigation bar title of the pushed screen (optional)
+                      screen: "quidwallet.home.market.TokenMarketDetailsScreen",
+			passProps: { token: token },
+			title: `${token.symbol}`, // navigation bar title of the pushed screen (optional)
 			navigatorStyle: {		      
 			    tabBarHidden: true,
 			},			
 			backButtonTitle: "" // override the back button title (optional)		    
 		    });
             }}>
-		<View style={styles.assetRow}>
+		<View style={styles.tokenRow}>
 		    <View style={{flex: 2, flexDirection: 'row'}}>
-			<TokenAvatar symbol={asset.symbol} contractAddress={asset.contractAddress} darkTheme={true} />
+			<TokenAvatar symbol={token.symbol} contractAddress={token.contractAddress} darkTheme={true} />
 			<View style={{flexDirection: "column", alignItems: 'center', justifyContent: 'center'}}>
-			    {asset.isFavorite ? <Image style={{marginRight: 10}} source={require('quid-wallet/app/views/assets/icons/icon_favorite.png')} /> : null}
+			    {token.isFavorite ? <Image style={{marginRight: 10}} source={require('quid-wallet/app/views/assets/icons/icon_favorite.png')} /> : null}
 			</View>                                
                     </View>            
 		    <View style={styles.centeredFlexEnd}>
-			<Text style={cachedStyles.priceValue}>{renderRowCache.price}</Text>
-			<Text style={[...cachedStyles.priceChange ,{ color: renderRowCache.color }]}>{renderRowCache.change}</Text>
+			<Text style={cachedStyles.priceValue}>{price}</Text>
+			<Text style={[...cachedStyles.priceChange ,{ color }]}>{priceChangeString}</Text>
 		    </View>
 		</View>
-	    </TouchableOpacity>	    
+	    </TouchableOpacity>
 	);
     }
 }
 
 
-export default AssetPriceRow;
+export default TokenPriceRow;

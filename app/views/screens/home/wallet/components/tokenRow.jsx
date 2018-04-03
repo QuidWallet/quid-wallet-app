@@ -7,7 +7,7 @@ import { human } from 'react-native-typography';
 
 
 const styles = StyleSheet.create({
-    assetRow: {
+    tokenRow: {
         flexDirection: 'row',
         height: 80,
     },
@@ -24,18 +24,17 @@ const styles = StyleSheet.create({
 });
 
 
-export const AssetRow = (props) => {
-    const { asset, currency } = props;
-    let fiatBalanceString = (asset.balanceFiat > 0) ? `${formatToCurrency(asset.balanceFiat, currency)}` : '-';
-    let qntyString = toFixed(asset.balance, 2);
-    if (props.isBalanceHidden) {
+export const TokenRow = ({ token, currency, isBalanceHidden }) => {
+    let fiatBalanceString = (token.balance > 0) ? `${formatToCurrency(token.balance, currency)}` : '-';
+    let qntyString = toFixed(token.qnty, 2);
+    if (isBalanceHidden) {
 	qntyString = "-";
 	fiatBalanceString = "-";
     }
     
     return (
-        <View style={styles.assetRow}>
-          <TokenAvatar symbol={asset.symbol} contractAddress={asset.contractAddress} />
+        <View style={styles.tokenRow}>
+          <TokenAvatar symbol={token.symbol} contractAddress={token.contractAddress} />
           <View style={styles.centeredFlexEnd}>
             <Text style={ [human.title3, { marginTop: 20, marginRight: 11, color: '#242836', lineHeight: 20 }]}>{qntyString}</Text>
             <Text style={[human.caption1, styles.fiatValue]}>{fiatBalanceString}</Text>
@@ -45,4 +44,4 @@ export const AssetRow = (props) => {
 }
 
 
-export default AssetRow;
+export default TokenRow;

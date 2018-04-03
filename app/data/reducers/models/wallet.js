@@ -9,7 +9,8 @@ export default class Wallet extends Model {
 	address: attr(),
 	name: attr(),
 	walletType: attr(),
-	icon: attr()
+	icon: attr(),
+	keystore: attr()
     }
     options = {
 	idAttribute: 'address',
@@ -17,15 +18,18 @@ export default class Wallet extends Model {
     
     static reducer(action, model) {
 	switch (action.type) {
-	case actions.LINK_WATCH_WALLET: {
-	    const { address, icon } = action.payload;
+	case actions.ADD_WALLET: {
+	    const {
+		address, icon, name,
+		walletType, keystore } = action.payload;
 	    if (!model.hasId(address)) {
 		return model.create({
 		    id: address,
 		    address,
-		    icon: icon,
-		    name: address,
-		    walletType: 'WATCH_WALLET'
+		    icon,
+		    name,
+		    walletType,
+		    keystore
 		});
 	    }
 	    return undefined;

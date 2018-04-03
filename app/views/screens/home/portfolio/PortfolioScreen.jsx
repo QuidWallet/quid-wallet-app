@@ -41,7 +41,7 @@ class PortfolioScreen extends React.Component {
     render() {
 	return (
 	    <View style={{flex: 1}}>
-		<PortfolioHeader navigator={this.props.navigator} appState={this.state.appState}/>
+                <PortfolioHeader navigator={this.props.navigator} appState={this.state.appState}/>		
 		<PositionsContainer navigator={this.props.navigator}/>
 	    </View>
 	);

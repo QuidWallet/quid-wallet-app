@@ -2,71 +2,58 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { View, FlatList } from 'react-native';
 import {
-    getAssetsWithPrice,    
     getActiveWallet,
-    getPositionChangeDct,    
+    getPortfolioPositions,    
     getSelectedCurrency
 } from 'quid-wallet/app/data/selectors';
-import { fetchAddressAssets } from 'quid-wallet/app/actions/wallet';
-import { fetchMarketData } from 'quid-wallet/app/actions/market';
-import AssetPriceRow from './assetRow';
+import { fetchWalletTokens } from 'quid-wallet/app/actions/wallet';
+import PositionRow from './PositionRow';
 import FabricService from 'quid-wallet/app/services/FabricService';
 
 
 class PositionsContainer extends React.PureComponent {
-    _fetchData() {	
-	const { fetchAddressAssets, fetchMarketData,
+    async _fetchData() {	
+	const { fetchWalletTokens, fetchMarketData,
 		activeWallet, navigator } = this.props;
-	
-	Promise.all([
-	    fetchAddressAssets(activeWallet.address),
-	    fetchMarketData()
-	]).catch(() =>{
-	    navigator.showInAppNotification({
+
+	try { 
+	    await fetchWalletTokens(activeWallet.address);
+	} catch(err) {
+		navigator.showInAppNotification({
 		screen: "quidwallet.components.Notification", // unique ID registered with Navigation.registerScreen
 		passProps: {}, // simple serializable object that will pass as props to the lightbox (optional)
 		autoDismissTimerSec: 3 // auto dismiss notification in seconds
 	    });		
-	});
+	}
 
 	// #fabric-analytics
 	FabricService.logScreenPullRefreshed('quidwallet.home.portfolio.PortfolioScreen');
     }
     
     _renderAssetRow({ item }) {
-	const { currency, changeDct, isBalanceHidden } = this.props;
-
-	const props = {
-	    symbol: item.symbol,
-	    contractAddress: item.contractAddress,
-	    price: item.price,
-	    priceChange: item.marketInfo.diff,
-	    balanceChangeAbs: changeDct[item.address].value,
-	    balanceChangePerc: changeDct[item.address].percent,
-	    balance: item.balanceFiat,
-	    qnty: item.balance,
-	    currency,
-	    isBalanceHidden
-	};
-
+	const { currency, isBalanceHidden } = this.props;
 	return (
-	    <AssetPriceRow {...props} />
-	);
+		<PositionRow
+	    token={item}
+	    currency={currency}
+	    isBalanceHidden={isBalanceHidden}/>
+	);	
     }
 
     render() {
-	const component = this;
-	const { assets } = this.props;
+	const { tokens } = this.props;
 	
+	const Separator = () => (<View style={{height: 1, backgroundColor: '#e9eaeb'}} />);
 	return (
-	      <FlatList
-		 data={assets}
-		 ItemSeparatorComponent={() => <View style={{height: 1, backgroundColor: '#e9eaeb'}} />}
-		 onRefresh={() => component._fetchData()}
-		refreshing={this.props.fetchingData}
-		renderItem={this._renderAssetRow.bind(this)}
+		<FlatList
+	    data={tokens}
+	    ItemSeparatorComponent={Separator}
+	    keyExtractor={item => item.contractAddress}
+	    onRefresh={() => this._fetchData()}
+	    refreshing={this.props.fetchingData}
+	    renderItem={this._renderAssetRow.bind(this)}
 		/>
-	);
+	);	
     }
 }
 
@@ -74,14 +61,12 @@ class PositionsContainer extends React.PureComponent {
 const mapStateToProps = state => ({
     fetchingData: state.refreshers.fetchingAddressAssets,
     activeWallet: getActiveWallet(state),    
-    assets: getAssetsWithPrice(state),
+    tokens: getPortfolioPositions(state),
     currency: getSelectedCurrency(state),    
     isBalanceHidden: state.data.balanceHidden,
-    changeDct: getPositionChangeDct(state)
 });
 
 
 export default connect(mapStateToProps, {
-    fetchAddressAssets,
-    fetchMarketData
+    fetchWalletTokens
 })(PositionsContainer);

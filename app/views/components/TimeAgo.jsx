@@ -5,6 +5,7 @@ import moment from 'moment';
 
 
 export const TimeAgoText = ({timestamp}) => {
+    if (!timestamp || timestamp === 0 || timestamp === Infinity) { return ": unknown"; }
     const timeAgo = moment(new Date(timestamp)).fromNow();
     return timeAgo;
 }

@@ -1,14 +1,15 @@
 import React from 'react';
-import { Text, View, FlatList, Platform,
+import { Text, View,
+	 FlatList, Platform,
 	 TouchableOpacity, ActivityIndicator } from 'react-native';
 import { connect } from 'react-redux';
 import { fetchEtherTransactions } from 'quid-wallet/app/actions/transactions';
-import { getActiveWallet, getAssetTransfers } from 'quid-wallet/app/data/selectors';
+import { getAssetTransfers } from 'quid-wallet/app/data/selectors';
 import etherscanService from 'quid-wallet/app/services/etherscanApiService';
 import TransactionRow from './TransactionRow';
 
 
-class TokenTransactions extends React.Component {
+class EtherTransactions extends React.Component {
     _keyExtractor = (item) => item.id;
 
     constructor(props) {
@@ -33,37 +34,38 @@ class TokenTransactions extends React.Component {
 	this._fetchData();
     }
 
-    _fetchData() {
+    async _fetchData() {
 	this.page = 1;
 	this.state.moreTxs = [];	
-	const { fetchEtherTransactions, address } = this.props;	
-	fetchEtherTransactions(address)
-	    .catch(() => {
-		this._showErrorNotification()
-	    });
+	const { fetchEtherTransactions, wallet } = this.props;
+	try { 
+	    await fetchEtherTransactions(wallet.address);
+	} catch(err) {
+	    this._showErrorNotification();
+	};
     }
 
     
-    _onLoadMore() {
-	const { address	} = this.props;
+    async _onLoadMore() {
+	const { wallet	} = this.props;
 	this.page += 1;
-	this.setState({fetching: true})
-	
-	etherscanService.getTransactions({
-	    address,
-	    startBlock: 0,
-	    page: this.page
-	}).then((moreTxs) => {
+	this.setState({fetching: true});
+	try { 
+	    const moreTxs = await etherscanService.getTransactions({
+		address: wallet.address,
+		startBlock: 0,
+		page: this.page
+	    });
 	    if (moreTxs.length > 0) {
 		this.setState({moreTxs, fetching: false});
 	    } else {
 		// there are no txs to fetch left
 		this.setState({noMoreTxs: true, fetching: false});
 	    }	    
-	}).catch((error) => {	    
+	} catch(error) {	    
 	    this.setState({error, fetching: false});
 	    this._showErrorNotification();
-	});	
+	};	
     }
     
 
@@ -71,8 +73,8 @@ class TokenTransactions extends React.Component {
 	const refreshing = this.props.refreshing || this.state.fetching;	
 	if (refreshing) {	    
 	    // show loading indicator only for ios
-	    if (Platform.OS === "android") { return null };
-	    return (<ActivityIndicator/>)
+	    if (Platform.OS === "android") { return null; };
+	    return (<ActivityIndicator/>);
 	}
 
 	// don't render load more button if there are less than 50 txs
@@ -113,7 +115,7 @@ class TokenTransactions extends React.Component {
 		    refreshing={refreshing}
 		    ListFooterComponent={this._renderFooter.bind(this)}		
 		    keyExtractor={this._keyExtractor}
-		    renderItem={({ item }) => <TransactionRow tx={item} asset={this.props.asset} navigator={this.props.navigator}/>}
+		    renderItem={({ item }) => <TransactionRow tx={item} token={this.props.token} navigator={this.props.navigator}/>}
 		/>
 	    </View>
 	);
@@ -122,10 +124,9 @@ class TokenTransactions extends React.Component {
 
 
 const mapStateToProps = (state, props) => ({
-    address: getActiveWallet(state).address,
     cachedTxs: getAssetTransfers(state, props),
     refreshing: state.refreshers.fetchingTransactions
 });
 
 
-export default connect(mapStateToProps, {fetchEtherTransactions})(TokenTransactions);
+export default connect(mapStateToProps, {fetchEtherTransactions})(EtherTransactions);

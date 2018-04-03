@@ -76,7 +76,7 @@ export default class CollapsibleToolbar extends Component {
         this.navBarHeight = APPBAR_HEIGHT + this.statusBarHeight;
         this.maxScrollableHeight = props.toolBarHeight - this.navBarHeight;
 	
-        const inputRange1 = [this.maxScrollableHeight / 4, this.maxScrollableHeight];
+        const inputRange1 = [this.maxScrollableHeight / 10, this.maxScrollableHeight / 2];
         const inputRange2 = [this.maxScrollableHeight - 0.1, this.maxScrollableHeight];
 
         this.scrollOffsetY = new Animated.Value(0);

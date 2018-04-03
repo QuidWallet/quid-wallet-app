@@ -2,10 +2,11 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import TokenAvatar from 'quid-wallet/app/views/components/TokenAvatar';
 import { systemWeights, human } from 'react-native-typography';
+import { getPriceChangeFormatObj } from 'quid-wallet/app/views/helpers/price';
 
 
 const styles = StyleSheet.create({
-    assetRow: {
+    tokenRow: {
         flex: 1,
         flexDirection: 'row',
         height: 80,
@@ -32,18 +33,19 @@ const cachedStyles = {
 }
 
 
-export class AssetRow extends React.PureComponent {
+export class TokenRow extends React.PureComponent {
     render() {
-	const { asset } = this.props;	
-	const { renderRowCache } = asset;
+	const { token, currency } = this.props;
+	const { price, color, priceChangeString } = getPriceChangeFormatObj({...token, currency});
+	
 	return (
-	    <View style={styles.assetRow}>
+	    <View style={styles.tokenRow}>
 		<View style={{flex: 2, flexDirection: 'row', marginLeft: -25}}>
-		    <TokenAvatar symbol={asset.name} contractAddress={asset.contractAddress} darkTheme={false} />
+		    <TokenAvatar symbol={token.name} contractAddress={token.contractAddress} darkTheme={false} />
 		</View>            
 		<View style={styles.centeredFlexEnd}>
-		    <Text style={[cachedStyles.priceValueDetailsScreen, ] }>{renderRowCache.price}</Text>
-		    <Text style={[...cachedStyles.priceChange ,{ color: renderRowCache.color }]}>{renderRowCache.change}</Text>
+		    <Text style={[cachedStyles.priceValueDetailsScreen, ] }>{price}</Text>
+		    <Text style={[...cachedStyles.priceChange ,{ color }]}>{priceChangeString}</Text>
 		</View>
 	    </View>
 	);
@@ -51,4 +53,4 @@ export class AssetRow extends React.PureComponent {
 }
 
 
-export default AssetRow;
+export default TokenRow;

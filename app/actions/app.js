@@ -1,3 +1,4 @@
+import Config from 'react-native-config';
 import { getTokenWithMarketInfo } from 'quid-wallet/app/data/selectors';
 import FabricService from 'quid-wallet/app/services/FabricService';
 
@@ -28,13 +29,41 @@ export function stopAllRefreshers() {
     };
 }
 
-export function updateTokensList({tokens, version}) {
+function updateTokensList({tokens, version}) {
     return {
 	type: actions.UPDATE_TOKENS_LIST,
 	payload: {
 	    tokens,
 	    version
 	}
+    };
+}
+
+
+export function remoteSyncTokensList() {
+    return (dispatch, getState) => {
+	const state = getState();
+	// sync tokens list with remote repo
+	const localTokensListVersion = state.config.tokens.version;
+	
+	// check if version has changed since last sync
+	fetch(Config.TOKENS_VERSION_URL)
+	    .then(res => res.json())
+	    .then(data => {
+		if (data.version > localTokensListVersion) {
+		    // tokens list needs to be updated
+		    fetch(Config.TOKENS_LIST_URL).then(res => res.json())
+			.then(newTokensData => {
+			    if (newTokensData.tokens) {
+				dispatch(updateTokensList(newTokensData));
+			    }
+			}).catch(() => {
+			    // pass network errors
+			});
+		}
+	    }).catch(() => {
+		// pass network errors
+	    });
     };
 }
 
@@ -51,7 +80,7 @@ export function toggleFavoriteToken(tokenAddress) {
 	});
 
 	// #fabric-analytics
-	const token = getTokenWithMarketInfo(state, {asset: {contractAddress: tokenAddress}});
+	const token = getTokenWithMarketInfo(state, {token: {contractAddress: tokenAddress}});
 	const favoriteTokensCount = state.data.favoriteTokens.length;
 	const toggleAction = (token.isFavorite ? 'ADD' : 'REMOVE');
 	FabricService.logFavoriteTokenToggled(token.symbol, favoriteTokensCount, toggleAction);

@@ -3,9 +3,8 @@ import { connect } from 'react-redux';
 import { View, Platform, RefreshControl } from 'react-native';
 import styles from './styles';
 import components from './components';
-const { WalletHeader, WalletAssetsContainer } = components;
-import { fetchAddressAssets } from 'quid-wallet/app/actions/wallet';
-import { fetchMarketData } from 'quid-wallet/app/actions/market';
+const { WalletHeader, WalletTokensList } = components;
+import { fetchWalletTokens } from 'quid-wallet/app/actions/wallet';
 import wrapWithCurrencySwitcher from 'quid-wallet/app/views/components/currency-switcher';
 import CollapsibleToolbar from 'quid-wallet/app/views/components/CollapsibleToolbar';
 import TransparentNavBar from 'quid-wallet/app/views/components/TransparentNavBar';
@@ -23,25 +22,24 @@ class WalletScreen extends React.PureComponent {
     	this._fetchData();
    }
     
-    _fetchData() {	
-	const { fetchAddressAssets, fetchMarketData,
+    async _fetchData() {	
+	const { fetchWalletTokens,
 		activeWallet, navigator } = this.props;
-	
-	Promise.all([
-	    fetchAddressAssets(activeWallet.address),
-	    fetchMarketData()
-	]).catch(() =>{
+
+	try { 	    
+	    await fetchWalletTokens(activeWallet.address);
+	} catch(err){
 	    navigator.showInAppNotification({
 		screen: "quidwallet.components.Notification", // unique ID registered with Navigation.registerScreen
 		passProps: {}, // simple serializable object that will pass as props to the lightbox (optional)
 		autoDismissTimerSec: 3 // auto dismiss notification in seconds
 	    });		
-	});
+	};
     }
 
     
-    renderContent() {		
-	return (<WalletAssetsContainer navigator={this.props.navigator}/>);
+    renderContent() {
+	return (<WalletTokensList navigator={this.props.navigator}/>);
     }
 
     renderNavbar() {
@@ -63,7 +61,7 @@ class WalletScreen extends React.PureComponent {
 	this._fetchData();
     }
     
-    render() {	
+    render() {
 	const component = this;
 	return (
 	    <View style={styles.container}>
@@ -87,8 +85,7 @@ class WalletScreen extends React.PureComponent {
 export default connect(state => ({
     fetchingData: state.refreshers.fetchingAddressAssets
 }), {
-    fetchAddressAssets,
-    fetchMarketData,    
+    fetchWalletTokens
 })(wrapWithCurrencySwitcher(
     WalletScreen,
     true, // withDrawer,

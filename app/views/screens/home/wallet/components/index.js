@@ -1,7 +1,7 @@
 import WalletHeader from './WalletHeader';
-import WalletAssetsContainer from './WalletAssetsContainer';
+import WalletTokensList from './WalletTokensList';
 
 export default {
     WalletHeader,
-    WalletAssetsContainer
+    WalletTokensList
 };
