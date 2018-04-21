@@ -1,0 +1,115 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>net.sourceforge.streamsupport</groupId>
+	<artifactId>streamsupport</artifactId>
+	<version>1.5.1</version>
+	<name>net.sourceforge.streamsupport:streamsupport</name>
+	<description>streamsupport is a backport of the Java 8 java.util.function (functional interfaces) and
+ java.util.stream (streams) API for Java 6 / 7 and Android developers</description>
+	<url>http://sourceforge.net/projects/streamsupport/</url>
+	<licenses>
+		<license>
+			<name>GNU General Public License, version 2, with the Classpath Exception</name>
+			<url>http://openjdk.java.net/legal/gplv2+ce.html</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>Stefan Zobel</name>
+			<email>Spliterator@gmail.com</email>
+			<organization>net.sourceforge.streamsupport</organization>
+			<organizationUrl>http://sourceforge.net/projects/streamsupport/</organizationUrl>
+		</developer>
+	</developers>
+	<scm>
+		<url>http://hg.code.sf.net/p/streamsupport/code</url>
+		<connection>scm:hg:http://hg.code.sf.net/p/streamsupport/code</connection>
+		<developerConnection>scm:hg:https://hg.code.sf.net/p/streamsupport/code</developerConnection>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>Cp1252</project.build.sourceEncoding>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>net.orfjackal.retrolambda</groupId>
+				<artifactId>retrolambda-maven-plugin</artifactId>
+				<version>1.8.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>process-main</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<java8home>F:/Java/jdk1.8.0_102-64bit/</java8home>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<excludes>
+						<!-- exclude j.u.Random compilation stub -->
+						<exclude>java/**</exclude>
+					</excludes>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+						<manifestEntries>
+							<Archiver-Version/>
+							<Created-By/>
+							<Built-By/>
+							<Build-Jdk/>
+							<Bundle-ManifestVersion>2</Bundle-ManifestVersion>
+							<Bundle-SymbolicName>${project.groupId}</Bundle-SymbolicName>
+							<Bundle-Version>${project.version}</Bundle-Version>
+							<Export-Package>java8.lang;java8.util;java8.util.concurrent;java8.util.f
+unction;java8.util.stream</Export-Package>
+							<Import-Package>sun.misc;resolution:=optional</Import-Package>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.3</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

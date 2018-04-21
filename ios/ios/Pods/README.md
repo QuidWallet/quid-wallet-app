@@ -1,0 +1,1 @@
+this folder is added to skip pod install command in CI/CD pipeline

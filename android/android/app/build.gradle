@@ -1,0 +1,193 @@
+apply plugin: "com.android.application"
+//apply plugin: 'maven'
+import com.android.build.OutputFile
+
+project.ext.envConfigFiles = [
+   releasestaging: ".env.staging",
+   releaseropsten: ".env.ropsten",      
+   release: ".env.production",
+   debug: ".env"
+]			
+
+project.ext.sentryCli = [
+    logLevel: "debug",
+    flavorAware: true
+]	     
+
+apply from: "../../node_modules/react-native/react.gradle"
+apply from: "../../node_modules/react-native-sentry/sentry.gradle"
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
+
+
+/**
+ * Set this to true to create two separate APKs instead of one:
+ *   - An APK that only works on ARM devices
+ *   - An APK that only works on x86 devices
+ * The advantage is the size of the APK is reduced by about 4MB.
+ * Upload all the APKs to the Play Store and people will download
+ * the correct one based on the CPU architecture of their device.
+ */
+def enableSeparateBuildPerCPUArchitecture = false
+
+/**
+ * Run Proguard to shrink the Java bytecode in release builds.
+ */
+def enableProguardInReleaseBuilds = false
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion "26.0.2"
+
+    defaultConfig {
+        applicationId "com.quidwallet.quidwalletapp"
+	resValue "string", "build_config_package", "com.quidwallet.quidwalletapp"
+        minSdkVersion 18
+        targetSdkVersion 22
+        versionCode 1
+        versionName "0.4.0"
+        ndk {
+            abiFilters "armeabi-v7a", "x86"
+        }
+    }
+   signingConfigs {
+       releasestaging {
+           storeFile file("my-release-key.keystore")
+       	   storePassword "KNAFff12"
+           keyAlias "my-key-alias"
+           keyPassword "KNAFff12"
+       }
+    }
+    splits {
+        abi {
+            reset()
+            enable enableSeparateBuildPerCPUArchitecture
+            universalApk false  // If true, also generate a universal APK
+            include "armeabi-v7a", "x86"
+        }
+    }
+    buildTypes {
+       	debug {
+	    applicationIdSuffix ".debug"		    
+	}
+        release {
+            minifyEnabled enableProguardInReleaseBuilds
+	    proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+	releasestaging {
+	    initWith release
+            applicationIdSuffix ".releaseStaging"
+	    signingConfig signingConfigs.releasestaging
+        }
+	releaseropsten {
+	    initWith release
+            applicationIdSuffix ".releaseRopsten"
+	    signingConfig signingConfigs.releasestaging
+        }	
+
+    }
+    // applicationVariants are e.g. debug, release
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            // For each separate APK per architecture, set a unique version code as described here:
+            // http://tools.android.com/tech-docs/new-build-system/user-guide/apk-splits
+            def versionCodes = ["armeabi-v7a":1, "x86":2]
+            def abi = output.getFilter(OutputFile.ABI)
+            if (abi != null) {  // null for the universal-debug, universal-release variants
+                output.versionCodeOverride =
+                        versionCodes.get(abi) * 1048576 + defaultConfig.versionCode
+            }
+        }
+    }
+}
+
+buildscript {
+  repositories {
+    maven { url 'https://maven.fabric.io/public' }
+  }
+  dependencies {
+    // The Fabric Gradle plugin uses an open ended version to react
+    // quickly to Android tooling updates
+    classpath 'io.fabric.tools:gradle:1.+'
+  }
+}
+apply plugin: 'io.fabric'
+repositories {
+  maven { url 'https://maven.fabric.io/public' }
+}
+
+dependencies {
+    compile project(':react-native-fast-crypto')
+    compile project(':react-native-vector-icons')
+    compile(project(':react-native-firebase')) {
+     transitive = false
+    }
+
+    compile project(':react-native-config')
+    compile project(':react-native-sentry')
+
+    compile (project(':react-native-device-info')){
+        exclude group: "com.google.android.gms"
+    }   
+    compile project(':react-native-svg')
+    compile project(':react-native-navigation')
+    compile project(':randombytes')
+  
+
+    compile fileTree(dir: "libs", include: ["*.jar"])
+    compile "com.android.support:appcompat-v7:26.1.0"
+    compile "com.facebook.react:react-native:+"  // From node_modules
+    compile project(":react-native-navigation")
+
+    compile project(':react-native-fabric')
+ 
+    // Firebase dependencies
+    compile "com.google.android.gms:play-services-base:11.6.0"      
+    compile "com.google.firebase:firebase-core:11.6.0"
+    compile "com.google.firebase:firebase-messaging:11.6.0"
+    
+    compile('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
+      transitive = true;
+    }
+
+    
+    compile ("com.google.android.gms:play-services-gcm:11.6.0") {
+        force = true
+    }
+
+    androidTestCompile('com.microsoft.appcenter:appium-test-extension:1.0')
+}
+
+// Run this once to be able to run the application with BUCK
+// puts all compile dependencies into folder libs for BUCK to use
+task copyDownloadableDepsToLibs(type: Copy) {
+  from configurations.compile
+  into 'libs'
+}
+
+// for tests
+// task createPom {
+//     pom {
+//         withXml {
+	   
+//             def dependenciesNode = asNode().appendNode('dependencies')
+//             //Iterate over the compile dependencies (we don't want the test ones), adding a <dependency> node for each
+//             configurations.androidTestCompile.allDependencies.each {
+//                 def dependencyNode = dependenciesNode.appendNode('dependency')
+//                 dependencyNode.appendNode('groupId', it.group)
+//                 dependencyNode.appendNode('artifactId', it.name)
+//                 dependencyNode.appendNode('version', it.version)
+//             }   
+//             def profilesNode = asNode().appendNode('profiles')
+//             profilesNode.append(new XmlParser().parse('https://raw.githubusercontent.com/Microsoft/AppCenter-Test-Appium-Java-Extensions/master/gradleuploadprofilesnippet.xml'))
+//         }
+//     }.writeTo("pom.xml")
+// }
+
+// configurations.all {
+//     resolutionStrategy {
+//             force  'org.ow2.asm:asm:5.0.4'
+//     }
+// }
+
+
+apply plugin: 'com.google.gms.google-services'

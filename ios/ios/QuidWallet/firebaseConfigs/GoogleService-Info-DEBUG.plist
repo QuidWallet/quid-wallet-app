@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>AD_UNIT_ID_FOR_BANNER_TEST</key>
+	<string>ca-app-pub-3940256099942544/2934735716</string>
+	<key>AD_UNIT_ID_FOR_INTERSTITIAL_TEST</key>
+	<string>ca-app-pub-3940256099942544/4411468910</string>
+	<key>CLIENT_ID</key>
+	<string>282462728787-rsupmug5o3lue5ve5u7h82tk2gqig3hs.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.282462728787-rsupmug5o3lue5ve5u7h82tk2gqig3hs</string>
+	<key>API_KEY</key>
+	<string>AIzaSyD15T4d9NzxDuGQUBPGtEmNe2GVf5rwBZQ</string>
+	<key>GCM_SENDER_ID</key>
+	<string>282462728787</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.quidwallet.QuidWallet-DEV</string>
+	<key>PROJECT_ID</key>
+	<string>quidwallet-ios-debug</string>
+	<key>STORAGE_BUCKET</key>
+	<string>quidwallet-ios-debug.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<true></true>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<false></false>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:282462728787:ios:78455a6020fdbf1b</string>
+	<key>DATABASE_URL</key>
+	<string>https://quidwallet-ios-debug.firebaseio.com</string>
+</dict>
+</plist>
